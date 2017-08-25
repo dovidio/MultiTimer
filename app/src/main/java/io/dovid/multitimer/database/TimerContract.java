@@ -1,4 +1,4 @@
-package io.dovid.multitimer;
+package io.dovid.multitimer.database;
 
 import android.provider.BaseColumns;
 
@@ -15,7 +15,7 @@ public final class TimerContract {
     private TimerContract() {}
 
     public static class Timer implements BaseColumns {
-        public static final String ID = "ID";
+        public static final String TABLE_NAME = "TIMER";
         public static final String NAME = "NAME";
         public static final String DEFAULT_TIME = "DEFAULT_TIME";
         public static final String EXPIRED_TIME = "EXPIRED_TIME";
@@ -23,12 +23,13 @@ public final class TimerContract {
     }
 
     public static class TimerCollection implements BaseColumns {
-        public static final String ID = "ID";
+        public static final String TABLE_NAME = "TIMER_COLLECTION";
         public static final String NAME = "NAME";
+        public static final String QUANTITY = "QUANTITY";
     }
 
     public static class TimerTimerCollection implements BaseColumns {
-        public static final String ID = "ID";
+        public static final String TABLE_NAME = "TIMER_TIMER_COLLECTION";
         public static final String TIMER_ID = "TIMER_ID";
         public static final String TIMER_COLLECTION_ID = "TIMER_COLLECTION_ID";
     }
