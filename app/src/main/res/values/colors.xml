@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#009688</color>
+    <color name="appBar">#E0E0E0</color>
+    <color name="statusBar">#757575</color>
+
+    <color name="card1">#009688</color>
+    <color name="card2">#00BBD3</color>
+    <color name="card3">#F44336</color>
+    <color name="card4">#E91E63</color>
+    <color name="card5">#9C27B0</color>
+    <color name="card6">#673AB7</color>
+    <color name="card7">#3F51B5</color>
+    <color name="card8">#2196F3</color>
+    <color name="card9">#FF5722</color>
+    <color name="card10">#607D8B</color>
+</resources>
