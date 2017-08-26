@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/AlertDialog.AppCompat.Light"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
+
+
+    <EditText
+        android:id="@+id/editTextTimerName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textAlignment="center"
+        android:hint="@string/timer_name"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:padding="8dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="10dp"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/editTextHours"
+            style="@android:style/Widget.TextView"
+            android:maxLength="2"
+            android:textAlignment="center"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/hours_placeholder"
+            android:inputType="numberDecimal"
+            android:text="@string/double_zero"
+            android:textSize="36sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36sp"
+            android:text="@string/colon"/>
+
+        <EditText
+            android:id="@+id/editTextMinutes"
+            android:maxLength="2"
+            style="@android:style/Widget.TextView"
+            android:textAlignment="center"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/minutes_placeholder"
+            android:inputType="numberDecimal"
+            android:text="@string/double_zero"
+            android:textSize="36sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36sp"
+            android:text="@string/colon"/>
+
+        <EditText
+            android:id="@+id/editTextSeconds"
+            android:maxLength="2"
+            style="@android:style/Widget.TextView"
+            android:textAlignment="center"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/seconds_placeholder"
+            android:inputType="numberDecimal"
+            android:text="@string/double_zero"
+            android:textSize="36sp" />
+    </LinearLayout>
+</LinearLayout>
+
+
