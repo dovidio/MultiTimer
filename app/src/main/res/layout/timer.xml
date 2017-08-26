@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <include android:id="@+id/timer_setup" layout="@layout/timer_setup" android:visibility="visible"></include>
-    <include android:id="@+id/timer_running" layout="@layout/timer_running" android:visibility="gone"></include>
+    <include android:id="@+id/pauseTimer" layout="@layout/timer_setup" android:visibility="visible"></include>
+    <include android:id="@+id/playTimer" layout="@layout/timer_running" android:visibility="gone"></include>
 </android.support.design.widget.CoordinatorLayout>
 
