@@ -1,19 +1,13 @@
 package io.dovid.multitimer;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.CountDownTimer;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,9 +18,10 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.ArrayList;
 
-import io.dovid.multitimer.model.CustomTimer;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
+import io.dovid.multitimer.database.DatabaseHelper;
+import io.dovid.multitimer.model.TimerDAO;
+import io.dovid.multitimer.model.TimerEntity;
+import io.dovid.multitimer.utilities.TimerRunner;
 
 /**
  * Author: Umberto D'Ovidio
@@ -36,17 +31,14 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Tutorial link : http://dovid.io
  */
 
-class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.CustomViewHolder> {
+class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> {
 
     private static final String TAG = "CUSTOMADAPTER";
-    public static final String ITALIANTIME = "HH:mm:ss";
-    private static final byte MAX_NUMBER_TIMERS = 10;
+    private ArrayList<TimerEntity> timers;
+    private Context context;
+    private DatabaseHelper databaseHelper;
 
-    private ArrayList<CustomTimer> timers;
-    private Context mContext;
-
-
-    private int[] colors = new int[] {
+    private int[] colors = new int[]{
             R.color.card1,
             R.color.card2,
             R.color.card3,
@@ -59,21 +51,39 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.CustomViewHolder>
             R.color.card10
     };
 
-
     public TimersAdapter(final Context context) {
-        mContext = context;
-        timers = new ArrayList<>();
+        this.context = context;
+        databaseHelper = DatabaseHelper.getInstance(context);
+        timers = TimerDAO.getTimers(databaseHelper);
+        TimerRunner.run(databaseHelper, context);
+    }
+
+    public void refreshTimers() {
+        timers = TimerDAO.getTimers(databaseHelper);
+        notifyDataSetChanged();
     }
 
 
+    private void deleteTimer(int position) {
+        TimerDAO.deleteTimer(databaseHelper, timers.get(position).getId());
+        refreshTimers();
+    }
+
+    private void showUpdateTimerDialog(int position) {
+        DialogFragment setupDialog = TimerUpdateDialog.getInstance(
+                databaseHelper,
+                timers.get(position).getId());
+        setupDialog.show(((Activity) context).getFragmentManager(), "create tag");
+    }
+
     @Override
-    public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TimerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.timer, parent, false);
-        return new CustomViewHolder(v);
+        return new TimerViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(CustomViewHolder holder, int position) {
+    public void onBindViewHolder(TimerViewHolder holder, int position) {
         holder.bind(position);
     }
 
@@ -82,178 +92,100 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.CustomViewHolder>
         return timers.size();
     }
 
-    public void addTimer() {
-        if (timers.size() >= MAX_NUMBER_TIMERS) {
-            new AlertDialog.Builder(mContext)
-                    .setTitle(R.string.maximum_number_timers_title)
-                    .setMessage(R.string.should_delete_timer_first)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    });
-        } else {
-            CustomTimer e = new CustomTimer(mContext.getString(R.string.pasta), 0, 0, false);
-            timers.add(e);
-            notifyDataSetChanged();
-            Log.d(TAG, "List size: " + timers.size());
-        }
-    }
 
-    public void saveTimer(int position, long time) {
-        timers.get(position).setCountdownTime(time);
-    }
+    public class TimerViewHolder extends RecyclerView.ViewHolder {
 
-    public void removeTimer() {
-        timers.remove(timers.size() - 1);
-    }
-
-
-    public class CustomViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView countdownTV;
-        private CountDownTimer ct;
-
-        public CustomViewHolder(final View itemView) {
+        public TimerViewHolder(final View itemView) {
             super(itemView);
         }
 
-        private int[] parseCountdown(String s) {
-            int hours = Integer.parseInt(s.substring(0, 2));
-            int minutes = Integer.parseInt(s.substring(3, 5));
-            int seconds = Integer.parseInt(s.substring(6));
-
-            return new int[]{
-                    hours, minutes, seconds
-            };
-        }
-
-        private long countdownToMilliseconds(String s) {
-            int[] v = parseCountdown(s);
-            return ((v[0] * 60 * 60) + (v[1] * 60) + v[2]) * 1000;
-        }
-
-        private void startCountdown(final String time, final TextView countdownRunning, boolean shouldChangeRunningCounter, final int position) {
-
-            long countdown = countdownToMilliseconds(time);
-
-            Log.d(TAG, "passed time: " + time);
-            Log.d(TAG, "computer time: " + countdown);
-
-            itemView.findViewById(R.id.timer_setup).setVisibility(View.GONE);
-            itemView.findViewById(R.id.timer_running).setVisibility(View.VISIBLE);
-
-            timers.get(position).setCountdownTime(countdown);
-
-            if (shouldChangeRunningCounter) {
-                countdownRunning.setText(DurationFormatUtils.formatDuration(countdown, ITALIANTIME));
-            }
-
-            ct = new CountDownTimer(countdown, 1000) {
-
-                @Override
-                public void onTick(long l) {
-                    countdownRunning.setText(DurationFormatUtils.formatDuration(l, ITALIANTIME));
-                    timers.get(position).setCountdownTimeRunning(l);
-                }
-
-                @Override
-                public void onFinish() {
-                    boolean wantsToBeNotified = itemView.findViewById(R.id.switchNotify).isActivated();
-
-                    if (wantsToBeNotified) {
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-                        NotificationCompat.Builder mBuilder =
-                                new NotificationCompat.Builder(itemView.getContext())
-                                        .setSmallIcon(R.mipmap.ic_launcher_round)
-                                        .setContentTitle("Countdown finished")
-                                        .setContentText("finished countdown")
-                                        .setSound(notification);
-
-                        NotificationManager mNotifyMgr =
-                                (NotificationManager) itemView.getContext().getSystemService(NOTIFICATION_SERVICE);
-
-                        mNotifyMgr.notify(001, mBuilder.build());
-                    }
-
-                    itemView.findViewById(R.id.timer_running).setVisibility(View.GONE);
-                    itemView.findViewById(R.id.timer_setup).setVisibility(View.VISIBLE);
-                }
-            }.start();
-            timers.get(position).setCurrentlyRunning(true);
-        }
-
         public void bind(final int position) {
-
-            countdownTV = itemView.findViewById(R.id.textViewCountdown);
-            final ImageButton playButton = itemView.findViewById(R.id.buttonPlay);
-            final TextView countdownRunning = itemView.findViewById(R.id.editTextCountdownRunning);
-
-            itemView.findViewById(R.id.editTextTimer).setBackgroundResource(colors[position]);
-            countdownRunning.setBackgroundResource(colors[position]);
-
-            // was running in the past, so make it run again with the last countdownvalue registered
-            if (timers.get(position).isCurrentlyRunning()) {
-                startCountdown(DurationFormatUtils.formatDuration(timers.get(position).getCountdownTimeRunning(), ITALIANTIME),
-                            countdownRunning, true, position);
+            if (timers.get(position).isRunning()) {
+                setupPlayView(position);
             } else {
-                Log.d(TAG, "we are setting time: " + DurationFormatUtils.formatDuration(timers.get(position).getCountdownTime(), ITALIANTIME));
-                countdownTV.setText(DurationFormatUtils.formatDuration(timers.get(position).getCountdownTime(), ITALIANTIME));
+                setupPauseView(position);
             }
+        }
 
-            countdownTV.setOnClickListener(new View.OnClickListener() {
+        private void setupPauseView(final int position) {
+
+            itemView.findViewById(R.id.pauseTimer).setVisibility(View.VISIBLE);
+            itemView.findViewById(R.id.playTimer).setVisibility(View.GONE);
+
+            TextView timerNameTV = itemView.findViewById(R.id.textViewTimerName);
+            TextView defaultTimeTV = itemView.findViewById(R.id.textViewDefaultTime);
+
+            timerNameTV.setText(timers.get(position).getName());
+            timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[position]));
+            timerNameTV.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
-                public void onClick(View view) {
-                    int[] countdownValues = parseCountdown(countdownTV.getText().toString());
-                    DialogFragment setupDialog = TimerSetupDialog.getInstance(
-                            mContext.getString(R.string.Setup_your_timer),
-                            countdownValues,
-                            countdownTV, position);
-                    setupDialog.show(((Activity) mContext).getFragmentManager(), "create tag");
+                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+                    contextMenu.setHeaderTitle(R.string.what_to_do);
+                    contextMenu.add(0, view.getId(), 0, R.string.delete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            deleteTimer(position);
+                            return true;
+                        }
+                    });
+
+                    contextMenu.add(0, view.getId(), 0, R.string.update).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            showUpdateTimerDialog(position);
+                            return true;
+                        }
+                    });
                 }
             });
 
-
+            defaultTimeTV.setText(DurationFormatUtils.formatDuration(timers.get(position).getDefaultTime(), BuildConfig.ITALIANTIME));
+            ImageButton playButton = itemView.findViewById(R.id.buttonPlay);
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startCountdown(countdownTV.getText().toString(), countdownRunning, true, position);
-                }
-            });
-
-            final ImageButton pause = itemView.findViewById(R.id.buttonPause);
-            pause.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (timers.get(position).isCurrentlyRunning()) {
-                        if (ct != null) {
-                            ct.cancel();
-                        }
-                        pause.setImageResource(R.drawable.play_icon);
-                        timers.get(position).setCurrentlyRunning(false);
-                    } else {
-                        startCountdown(countdownRunning.getText().toString(), countdownRunning, false, position);
-                        pause.setImageResource(R.drawable.pause_icon);
-                    }
-                }
-            });
-
-            final Button resetButton = itemView.findViewById(R.id.buttonReset);
-            resetButton.setTextColor(ContextCompat.getColor(mContext, colors[position]));
-            resetButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    itemView.findViewById(R.id.timer_running).setVisibility(View.GONE);
-                    itemView.findViewById(R.id.timer_setup).setVisibility(View.VISIBLE);
-                    countdownTV.setText(DurationFormatUtils.formatDuration(timers.get(position).getCountdownTime(), ITALIANTIME));
-                    if (ct != null) {
-                        ct.cancel();
-                    }
-                    timers.get(position).setCurrentlyRunning(false);
+                    TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), true);
                 }
             });
         }
+
+        private void setupPlayView(final int position) {
+
+            itemView.findViewById(R.id.pauseTimer).setVisibility(View.GONE);
+            itemView.findViewById(R.id.playTimer).setVisibility(View.VISIBLE);
+
+            final ImageButton pause = itemView.findViewById(R.id.buttonPause);
+            final TextView countdownRunning = itemView.findViewById(R.id.editTextCountdownRunning);
+
+            countdownRunning.setText(DurationFormatUtils.formatDuration(timers.get(position).getExpiredTime(), BuildConfig.ITALIANTIME));
+            countdownRunning.setBackgroundResource(colors[position]);
+
+            final Button resetButton = itemView.findViewById(R.id.buttonReset);
+            resetButton.setTextColor(ContextCompat.getColor(context, colors[position]));
+
+            resetButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    itemView.findViewById(R.id.playTimer).setVisibility(View.GONE);
+                    itemView.findViewById(R.id.pauseTimer).setVisibility(View.VISIBLE);
+                    TimerDAO.updateTimerExpiredTime(databaseHelper, timers.get(position).getId(), timers.get(position).getDefaultTime());
+                    TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), false);
+                    refreshTimers();
+                }
+            });
+
+            pause.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), false);
+                    refreshTimers();
+                }
+            });
+
+        }
+
+
     }
+
+
 }
