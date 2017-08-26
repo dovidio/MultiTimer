@@ -38,7 +38,7 @@ public class TimerRunner {
                     TimerDAO.printTimerTableStatistic(databaseHelper);
                     ArrayList<TimerEntity> timers = TimerDAO.getTimers(databaseHelper);
                     boolean shouldUpdateTimers = false;
-                    loop: for (TimerEntity timer : timers) {
+                    for (TimerEntity timer : timers) {
                         if (timer.isRunning()) {
                             Log.d(TAG, "run timer expired time: " + timer.getExpiredTime());
                             if (timer.getExpiredTime() <= 0) {
