@@ -81,6 +81,6 @@ public class CreateTimerDialog extends DialogFragment {
     }
 
     public interface  TimerCreateDialogListener {
-        public void onCreateTimer(String name, long time, DialogFragment dialog);
+        void onCreateTimer(String name, long time, DialogFragment dialog);
     }
 }
