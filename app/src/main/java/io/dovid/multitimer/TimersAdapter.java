@@ -6,12 +6,15 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -145,6 +148,16 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                 @Override
                 public void onClick(View view) {
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), true);
+                }
+            });
+
+            Switch switchButton = itemView.findViewById(R.id.switchNotify);
+            switchButton.setActivated(timers.get(position).shouldNotify());
+
+            switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    TimerDAO.updateTimerShouldNotify(databaseHelper, timers.get(position).getId(), b);
                 }
             });
         }
