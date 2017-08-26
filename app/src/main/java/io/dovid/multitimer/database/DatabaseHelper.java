@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sInstance;
     }
 
-    public DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -35,7 +35,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TimerContract.Timer.DEFAULT_TIME + " NUMERIC NOT NULL," +
             TimerContract.Timer.EXPIRED_TIME + " NUMERIC NOT NULL," +
             TimerContract.Timer.IS_RUNNING + " INTEGER DEFAULT 0," +
-            "PRIMARY KEY (" + TimerContract.Timer.NAME + "," + TimerContract.Timer.DEFAULT_TIME + "))";
+            TimerContract.Timer.SHOULD_NOTIFY + " INTEGER DEFAULT 1)";
+
 
 
     private static final String SQL_CREATE_TIMER_COLLECTION_TABLE = "CREATE TABLE " + TimerContract.TimerCollection.TABLE_NAME +
@@ -47,9 +48,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             " (" + TimerContract.TimerTimerCollection._ID + " INTEGER PRIMARY KEY," +
             TimerContract.TimerTimerCollection.TIMER_ID + " INTEGER NOT NULL," +
             TimerContract.TimerTimerCollection.TIMER_COLLECTION_ID + " INTEGER NOT NULL," +
-            "FOREIGN KEY (" + TimerContract.TimerTimerCollection.TIMER_ID + ")" +
-             " REFERENCES " + TimerContract.Timer.TABLE_NAME + " (" + TimerContract.Timer._ID + ")," +
-            " REFERENCES " + TimerContract.TimerCollection.TABLE_NAME + " (" + TimerContract.TimerCollection._ID + ")))";
+            "FOREIGN KEY(" + TimerContract.TimerTimerCollection.TIMER_ID + ")" +
+             " REFERENCES " + TimerContract.Timer.TABLE_NAME + "(" + TimerContract.Timer._ID + ")," +
+            "FOREIGN KEY(" + TimerContract.TimerTimerCollection.TIMER_COLLECTION_ID + ")" +
+            " REFERENCES " + TimerContract.TimerCollection.TABLE_NAME + "(" + TimerContract.TimerCollection._ID + "))";
 
     private static final String SQL_DROP_TIMER_TABLE = "DROP IF EXISTS " + TimerContract.Timer.TABLE_NAME;
     private static final String SQL_DROP_TIMER_COLLECTION_TABLE = "DROP IF EXISTS " + TimerContract.TimerCollection.TABLE_NAME;

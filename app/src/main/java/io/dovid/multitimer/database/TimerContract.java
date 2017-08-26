@@ -20,6 +20,7 @@ public final class TimerContract {
         public static final String DEFAULT_TIME = "DEFAULT_TIME";
         public static final String EXPIRED_TIME = "EXPIRED_TIME";
         public static final String IS_RUNNING = "IS_RUNNING";
+        public static final String SHOULD_NOTIFY = "SHOULD_NOTIFY";
     }
 
     public static class TimerCollection implements BaseColumns {
