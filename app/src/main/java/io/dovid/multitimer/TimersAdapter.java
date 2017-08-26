@@ -57,7 +57,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
         this.context = context;
         databaseHelper = DatabaseHelper.getInstance(context);
         timers = TimerDAO.getTimers(databaseHelper);
-        TimerRunner.run(databaseHelper, context);
+        TimerRunner.run(context);
     }
 
     public void refreshTimers() {
@@ -102,7 +102,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
         }
 
         public void bind(final int position) {
-            if (timers.get(position).isRunning()) {
+            if (timers.get(position).isRunning() || timers.get(position).getDefaultTime() != timers.get(position).getExpiredTime()) {
                 setupPlayView(position);
             } else {
                 setupPauseView(position);
@@ -189,10 +189,23 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
             pause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), false);
+                    if (timers.get(position).isRunning()) {
+                        pause.setImageResource(R.drawable.play_icon);
+                    } else {
+                        pause.setImageResource(R.drawable.pause_icon);
+                    }
+                    TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), !timers.get(position).isRunning());
                     refreshTimers();
+
                 }
             });
+
+            if (timers.get(position).getExpiredTime() != timers.get(position).getDefaultTime()) {
+                if (!timers.get(position).isRunning()) {
+                    pause.setImageResource(R.drawable.play_icon);
+                }
+
+            }
 
         }
     }
