@@ -23,15 +23,11 @@ public class CreateTimerDialog extends DialogFragment {
     private static final String TAG = "TIMERCREATEDIALOG";
 
     private CreateTimerDialog.TimerCreateDialogListener mListener;
-    private String defaultTime;
-    private int position;
 
     public CreateTimerDialog() {}
 
-    public static CreateTimerDialog getInstance(int position) {
+    public static CreateTimerDialog getInstance() {
         CreateTimerDialog dialog = new CreateTimerDialog();
-        Bundle args = new Bundle();
-        dialog.position = position;
         return dialog;
     }
 
@@ -72,7 +68,7 @@ public class CreateTimerDialog extends DialogFragment {
                         int seconds = Integer.parseInt(secondsET.getText().toString());
                         long milliseconds = (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
 
-                        mListener.onCreateTimer(name, milliseconds, position, CreateTimerDialog.this);
+                        mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
                     }
                 });
         return builder.create();
@@ -85,6 +81,6 @@ public class CreateTimerDialog extends DialogFragment {
     }
 
     public interface  TimerCreateDialogListener {
-        public void onCreateTimer(String name, long time, int position, DialogFragment dialog);
+        public void onCreateTimer(String name, long time, DialogFragment dialog);
     }
 }
