@@ -43,8 +43,6 @@ public class CreateTimerDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Bundle args = getArguments();
-
         AlertDialog.Builder builder =  new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View v = inflater.inflate(R.layout.timer_create_dialog, null, false);
