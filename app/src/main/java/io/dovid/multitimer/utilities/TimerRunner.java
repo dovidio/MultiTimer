@@ -1,5 +1,6 @@
 package io.dovid.multitimer.utilities;
 
+import android.app.admin.DeviceAdminInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -27,7 +28,8 @@ public class TimerRunner {
     private static boolean isRunning = false;
     private static final String TAG  = "TIMERRUNNER";
 
-    public static void run(final DatabaseHelper databaseHelper, final Context context) {
+    public static void run(final Context context) {
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
         if (!isRunning) {
             isRunning = true;
             final Timer timer = new Timer();
