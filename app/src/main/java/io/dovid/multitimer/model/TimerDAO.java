@@ -51,7 +51,7 @@ public class TimerDAO {
         }
     }
 
-    public static ArrayList<TimerEntity> getTimers(final DatabaseHelper databaseHelper) {
+    public synchronized static ArrayList<TimerEntity> getTimers(final DatabaseHelper databaseHelper) {
         ArrayList<TimerEntity> timers = new ArrayList<>();
         SQLiteDatabase writeDatabase = null;
         Cursor timersCursor = null;
