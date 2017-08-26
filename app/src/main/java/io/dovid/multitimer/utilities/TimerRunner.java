@@ -41,14 +41,16 @@ public class TimerRunner {
                     loop: for (TimerEntity timer : timers) {
                         if (timer.isRunning()) {
                             Log.d(TAG, "run timer expired time: " + timer.getExpiredTime());
-                            if (timer.getExpiredTime() <= 0 && timer.shouldNotify()) {
+                            if (timer.getExpiredTime() <= 0) {
                                 // set isRunning to no
                                 TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), false);
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
-                                // alert user about timer expired
-                                Intent intent = new Intent(context, TimesUpActivity.class);
-                                intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
-                                context.startActivity(intent);
+                                if (timer.shouldNotify()) {
+                                    // alert user about timer expired
+                                    Intent intent = new Intent(context, TimesUpActivity.class);
+                                    intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
+                                    context.startActivity(intent);
+                                }
                             } else {
                                 long newExpiredTime = timer.getExpiredTime() - 1000;
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), newExpiredTime);
