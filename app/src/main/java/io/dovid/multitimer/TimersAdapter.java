@@ -151,7 +151,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
             });
 
             Switch switchButton = itemView.findViewById(R.id.switchNotify);
-            switchButton.setActivated(timers.get(position).shouldNotify());
+            switchButton.setChecked(timers.get(position).shouldNotify());
 
             switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
