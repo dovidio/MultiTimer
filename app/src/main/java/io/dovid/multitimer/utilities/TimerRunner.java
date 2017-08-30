@@ -1,8 +1,11 @@
 package io.dovid.multitimer.utilities;
 
+import android.app.IntentService;
+import android.app.PendingIntent;
 import android.app.admin.DeviceAdminInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -10,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.dovid.multitimer.BuildConfig;
+import io.dovid.multitimer.MainActivity;
 import io.dovid.multitimer.TimesUpActivity;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
@@ -23,13 +27,17 @@ import io.dovid.multitimer.model.TimerEntity;
  * Tutorial link : http://dovid.io
  */
 
-public class TimerRunner {
+public class TimerRunner extends IntentService {
 
     private static boolean isRunning = false;
     private static final String TAG  = "TIMERRUNNER";
 
-    public static void run(final Context context) {
-        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
+    public TimerRunner(String name) {
+        super(name);
+    }
+
+    private void run() {
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
         if (!isRunning) {
             isRunning = true;
             final Timer timer = new Timer();
@@ -49,9 +57,10 @@ public class TimerRunner {
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
                                 if (timer.shouldNotify()) {
                                     // alert user about timer expired
-                                    Intent intent = new Intent(context, TimesUpActivity.class);
+                                    Intent intent = new Intent(TimerRunner.this, TimesUpActivity.class);
                                     intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
-                                    context.startActivity(intent);
+                                    PendingIntent pi = PendingIntent.getActivity(TimerRunner.this, 0, intent, 0);
+
                                 }
                             } else {
                                 long newExpiredTime = timer.getExpiredTime() - 1000;
@@ -62,12 +71,17 @@ public class TimerRunner {
                     }
                     if (shouldUpdateTimers) {
                         Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
-                        context.sendBroadcast(i);
+                        sendBroadcast(i);
                     }
                 }
             };
 
             timer.scheduleAtFixedRate(task, 0, 1000);
         }
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        run();
     }
 }
