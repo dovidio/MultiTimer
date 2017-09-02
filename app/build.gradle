@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 def ITALIANTIME = '"HH:mm:ss"';
 def EXTRA_TIMER_NAME = '"TIMER_NAME"';
 def UPDATE_TIMERS = '"UPDATE_TIMERS"';
+def TIME_IS_UP = '"io.dovid.multitimer.TIME_IS_UP"';
 
 android {
     compileSdkVersion 26
@@ -20,6 +21,7 @@ android {
             it.buildConfigField 'String', 'ITALIANTIME', ITALIANTIME
             it.buildConfigField 'String', 'EXTRA_TIMER_NAME', EXTRA_TIMER_NAME
             it.buildConfigField 'String', 'UPDATE_TIMERS', UPDATE_TIMERS
+            it.buildConfigField 'String', 'TIME_IS_UP', TIME_IS_UP
         }
         release {
             minifyEnabled false
