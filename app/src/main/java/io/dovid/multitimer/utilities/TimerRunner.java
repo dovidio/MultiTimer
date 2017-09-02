@@ -56,16 +56,7 @@ public class TimerRunner {
                                 // set isRunning to no
                                 TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), false);
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
-                                if (timer.shouldNotify()) {
-                                    // alert user about timer expired
-                                    Intent intent = new Intent(context, TimesUpActivity.class);
-                                    intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    intent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
-                                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON +
-                                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-                                    context.startActivity(intent);
-                                }
+                                TimerAlarmManager.setupAlarms(context, databaseHelper);
                             } else {
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                             }
