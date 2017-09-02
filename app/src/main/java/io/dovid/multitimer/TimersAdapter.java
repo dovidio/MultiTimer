@@ -2,10 +2,17 @@ package io.dovid.multitimer;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.app.job.JobWorkItem;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Time;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,8 +27,10 @@ import android.widget.TextView;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.dovid.multitimer.database.DatabaseHelper;
+import io.dovid.multitimer.database.TimerContract;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
 import io.dovid.multitimer.utilities.TimerRunner;
@@ -37,6 +46,7 @@ import io.dovid.multitimer.utilities.TimerRunner;
 class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> {
 
     private static final String TAG = "CUSTOMADAPTER";
+    private static final int TIMER_JOB = 921;
     private ArrayList<TimerEntity> timers;
     private Context context;
     private DatabaseHelper databaseHelper;
@@ -59,8 +69,16 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
         databaseHelper = DatabaseHelper.getInstance(context);
         timers = TimerDAO.getTimers(databaseHelper);
 
-        Intent i = new Intent(context, TimerRunner.class);
-        context.startService(i);
+        TimerRunner.run(context);
+
+
+        JobInfo jobInfo = new JobInfo.Builder(TIMER_JOB, new ComponentName(context, TimerRunner.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
+                .setPeriodic(1000)
+                .setPersisted(true)
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(false)
+                .build();
     }
 
     public void refreshTimers() {
@@ -149,6 +167,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers.get(position).getId(), new java.util.Date().getTime());
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), true);
                 }
             });
@@ -183,8 +202,9 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                 public void onClick(View view) {
                     itemView.findViewById(R.id.playTimer).setVisibility(View.GONE);
                     itemView.findViewById(R.id.pauseTimer).setVisibility(View.VISIBLE);
-                    TimerDAO.updateTimerExpiredTime(databaseHelper, timers.get(position).getId(), timers.get(position).getDefaultTime());
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), false);
+                    TimerDAO.updateTimerExpiredTime(databaseHelper, timers.get(position).getId(), timers.get(position).getDefaultTime());
+                    TimerDAO.putPlayTimeStampNull(databaseHelper, timers.get(position).getId());
                     refreshTimers();
                 }
             });
@@ -194,12 +214,13 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                 public void onClick(View view) {
                     if (timers.get(position).isRunning()) {
                         pause.setImageResource(R.drawable.play_icon);
+                        TimerDAO.putPlayTimeStampNull(databaseHelper, timers.get(position).getId());
                     } else {
                         pause.setImageResource(R.drawable.pause_icon);
+                        TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers.get(position).getId(), new java.util.Date().getTime());
                     }
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), !timers.get(position).isRunning());
                     refreshTimers();
-
                 }
             });
 
@@ -209,7 +230,6 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                 }
 
             }
-
         }
     }
 }
