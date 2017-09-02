@@ -1,6 +1,7 @@
 package io.dovid.multitimer.utilities;
 
 import android.app.IntentService;
+import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.admin.DeviceAdminInfo;
@@ -10,6 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -30,27 +32,13 @@ import io.dovid.multitimer.model.TimerEntity;
  * Tutorial link : http://dovid.io
  */
 
-public class TimerRunner extends Service {
+public class TimerRunner {
 
     private static boolean isRunning = false;
     private static final String TAG = "TIMERRUNNER";
 
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        run();
-        return START_STICKY;
-    }
-
-    private void run() {
-        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
+    public static void run(final Context context) {
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
         if (!isRunning) {
             isRunning = true;
             final Timer timer = new Timer();
@@ -70,21 +58,23 @@ public class TimerRunner extends Service {
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
                                 if (timer.shouldNotify()) {
                                     // alert user about timer expired
-                                    Intent intent = new Intent(TimerRunner.this, TimesUpActivity.class);
+                                    Intent intent = new Intent(context, TimesUpActivity.class);
                                     intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
+                                    intent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
+                                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON +
+                                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                                    context.startActivity(intent);
                                 }
                             } else {
-                                long newExpiredTime = timer.getExpiredTime() - 1000;
-                                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), newExpiredTime);
+                                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                             }
                             shouldUpdateTimers = true;
                         }
                     }
                     if (shouldUpdateTimers) {
                         Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
-                        sendBroadcast(i);
+                        context.sendBroadcast(i);
                     }
                 }
             };
