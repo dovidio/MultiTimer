@@ -42,7 +42,6 @@ public class TimesUpActivity extends AppCompatActivity {
         });
 
         playAlarmRingtone();
-
     }
 
     private void playAlarmRingtone() {

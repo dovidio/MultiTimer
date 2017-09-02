@@ -45,7 +45,7 @@ public class TimerRunner {
                                 // set isRunning to no
                                 TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), false);
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
-                                TimerAlarmManager.setupAlarms(context, databaseHelper);
+                                TimerAlarmManager.INSTANCE.setupAlarms(context, databaseHelper);
                             } else {
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                             }

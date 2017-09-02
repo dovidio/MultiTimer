@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 def ITALIANTIME = '"HH:mm:ss"';
 def EXTRA_TIMER_NAME = '"TIMER_NAME"';
@@ -13,6 +14,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
+        vectorDrawables.useSupportLibrary = true
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -42,4 +44,8 @@ dependencies {
     compile 'com.android.support:cardview-v7:26.+'
     compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
     testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

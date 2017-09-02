@@ -152,7 +152,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                     TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers.get(position).getId(), new java.util.Date().getTime());
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), true);
                     refreshTimers();
-                    TimerAlarmManager.setupAlarms(context, timers);
+                    TimerAlarmManager.INSTANCE.setupAlarms(context, timers);
                 }
             });
 
@@ -190,7 +190,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                     TimerDAO.updateTimerExpiredTime(databaseHelper, timers.get(position).getId(), timers.get(position).getDefaultTime());
                     TimerDAO.putPlayTimeStampNull(databaseHelper, timers.get(position).getId());
                     refreshTimers();
-                    TimerAlarmManager.setupAlarms(context, timers);
+                    TimerAlarmManager.INSTANCE.setupAlarms(context, timers);
                 }
             });
 
@@ -206,7 +206,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                     }
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), !timers.get(position).isRunning());
                     refreshTimers();
-                    TimerAlarmManager.setupAlarms(context, timers);
+                    TimerAlarmManager.INSTANCE.setupAlarms(context, timers);
                 }
             });
 
