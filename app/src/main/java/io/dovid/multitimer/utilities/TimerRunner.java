@@ -2,9 +2,12 @@ package io.dovid.multitimer.utilities;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.app.admin.DeviceAdminInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -27,13 +30,23 @@ import io.dovid.multitimer.model.TimerEntity;
  * Tutorial link : http://dovid.io
  */
 
-public class TimerRunner extends IntentService {
+public class TimerRunner extends Service {
 
     private static boolean isRunning = false;
-    private static final String TAG  = "TIMERRUNNER";
+    private static final String TAG = "TIMERRUNNER";
 
-    public TimerRunner(String name) {
-        super(name);
+
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        run();
+        return START_STICKY;
     }
 
     private void run() {
@@ -59,8 +72,8 @@ public class TimerRunner extends IntentService {
                                     // alert user about timer expired
                                     Intent intent = new Intent(TimerRunner.this, TimesUpActivity.class);
                                     intent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timer.getName());
-                                    PendingIntent pi = PendingIntent.getActivity(TimerRunner.this, 0, intent, 0);
-
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 }
                             } else {
                                 long newExpiredTime = timer.getExpiredTime() - 1000;
@@ -80,8 +93,4 @@ public class TimerRunner extends IntentService {
         }
     }
 
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        run();
-    }
 }
