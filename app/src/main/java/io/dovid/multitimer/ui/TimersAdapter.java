@@ -1,21 +1,10 @@
-package io.dovid.multitimer;
+package io.dovid.multitimer.ui;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.DialogFragment;
-import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.app.job.JobWorkItem;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.Time;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -26,17 +15,14 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
 
+import io.dovid.multitimer.BuildConfig;
+import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
-import io.dovid.multitimer.database.TimerContract;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
 import io.dovid.multitimer.utilities.TimerAlarmManager;

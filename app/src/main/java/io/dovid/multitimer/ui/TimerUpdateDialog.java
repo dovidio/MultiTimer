@@ -1,4 +1,4 @@
-package io.dovid.multitimer;
+package io.dovid.multitimer.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +15,8 @@ import android.widget.EditText;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
+import io.dovid.multitimer.BuildConfig;
+import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.database.TimerContract;
 import io.dovid.multitimer.model.TimerDAO;

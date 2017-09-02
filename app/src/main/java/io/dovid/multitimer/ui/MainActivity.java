@@ -1,4 +1,4 @@
-package io.dovid.multitimer;
+package io.dovid.multitimer.ui;
 
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import io.dovid.multitimer.BuildConfig;
+import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
 

@@ -1,25 +1,14 @@
 package io.dovid.multitimer.utilities;
 
-import android.app.IntentService;
-import android.app.KeyguardManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.app.admin.DeviceAdminInfo;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.dovid.multitimer.BuildConfig;
-import io.dovid.multitimer.MainActivity;
-import io.dovid.multitimer.TimesUpActivity;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
