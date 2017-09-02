@@ -1,7 +1,9 @@
 package io.dovid.multitimer;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.app.job.JobWorkItem;
@@ -13,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -23,16 +26,20 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.database.TimerContract;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
+import io.dovid.multitimer.utilities.TimerAlarmManager;
 import io.dovid.multitimer.utilities.TimerRunner;
 
 /**
@@ -46,7 +53,6 @@ import io.dovid.multitimer.utilities.TimerRunner;
 class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> {
 
     private static final String TAG = "CUSTOMADAPTER";
-    private static final int TIMER_JOB = 921;
     private ArrayList<TimerEntity> timers;
     private Context context;
     private DatabaseHelper databaseHelper;
@@ -70,22 +76,12 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
         timers = TimerDAO.getTimers(databaseHelper);
 
         TimerRunner.run(context);
-
-
-        JobInfo jobInfo = new JobInfo.Builder(TIMER_JOB, new ComponentName(context, TimerRunner.class))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
-                .setPeriodic(1000)
-                .setPersisted(true)
-                .setRequiresCharging(false)
-                .setRequiresDeviceIdle(false)
-                .build();
     }
 
     public void refreshTimers() {
         timers = TimerDAO.getTimers(databaseHelper);
         notifyDataSetChanged();
     }
-
 
     private void deleteTimer(int position) {
         TimerDAO.deleteTimer(databaseHelper, timers.get(position).getId());
@@ -169,6 +165,8 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                 public void onClick(View view) {
                     TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers.get(position).getId(), new java.util.Date().getTime());
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), true);
+                    refreshTimers();
+                    TimerAlarmManager.setupAlarms(context, timers);
                 }
             });
 
@@ -206,6 +204,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                     TimerDAO.updateTimerExpiredTime(databaseHelper, timers.get(position).getId(), timers.get(position).getDefaultTime());
                     TimerDAO.putPlayTimeStampNull(databaseHelper, timers.get(position).getId());
                     refreshTimers();
+                    TimerAlarmManager.setupAlarms(context, timers);
                 }
             });
 
@@ -221,6 +220,7 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
                     }
                     TimerDAO.updateTimerRunning(databaseHelper, timers.get(position).getId(), !timers.get(position).isRunning());
                     refreshTimers();
+                    TimerAlarmManager.setupAlarms(context, timers);
                 }
             });
 
