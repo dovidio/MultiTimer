@@ -1,11 +1,15 @@
 package io.dovid.multitimer.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,6 +19,7 @@ import io.dovid.multitimer.R;
 
 public class TimesUpActivity extends AppCompatActivity {
 
+    private static final String TAG = "TIMESUPACTIVITY";
     private Ringtone r;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,22 +50,13 @@ public class TimesUpActivity extends AppCompatActivity {
     }
 
     private void playAlarmRingtone() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String ringtone = preferences.getString("notifications_new_message_ringtone", null);
 
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if(alert == null){
-            // alert is null, using backup
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            // I can't see this ever being null (as always have a default notification)
-            // but just incase
-            if(alert == null) {
-                // alert backup is null, using 2nd backup
-                alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            }
+        if (ringtone != null) {
+            Uri uri = Uri.parse(ringtone);
+            r = RingtoneManager.getRingtone(getApplicationContext(), uri);
+            r.play();
         }
-
-        r = RingtoneManager.getRingtone(getApplicationContext(), alert);
-        r.play();
-
     }
 }
