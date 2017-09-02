@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             " (" + TimerContract.Timer._ID + " INTEGER PRIMARY KEY," +
             TimerContract.Timer.NAME + " TEXT NOT NULL," +
             TimerContract.Timer.DEFAULT_TIME + " NUMERIC NOT NULL," +
-            TimerContract.Timer.PlAY_STARTED_AT + "NUMERIC DEFAULT NULL" +
+            TimerContract.Timer.PlAY_STARTED_AT + " NUMERIC DEFAULT NULL," +
             TimerContract.Timer.EXPIRED_TIME + " NUMERIC NOT NULL," +
             TimerContract.Timer.IS_RUNNING + " INTEGER DEFAULT 0," +
             TimerContract.Timer.SHOULD_NOTIFY + " INTEGER DEFAULT 1)";
