@@ -166,7 +166,6 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
                 if (!timers!![position].isRunning) {
                     pause.setImageResource(R.drawable.play_icon)
                 }
-
             }
         }
     }
