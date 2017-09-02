@@ -29,9 +29,12 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="io.dovid.multimer.TIME_IS_UP"></action>
+                <action android:name="io.dovid.multimer.TIME_IS_UP" />
             </intent-filter>
         </receiver>
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>
