@@ -59,6 +59,7 @@ public class TimerAlarmManager {
 
             Intent intentAlarm = new Intent(context, AlarmReceiver.class);
             intentAlarm.setAction(BuildConfig.TIME_IS_UP);
+            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer);
 
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, new Date().getTime() + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
