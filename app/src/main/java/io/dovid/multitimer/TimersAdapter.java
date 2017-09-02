@@ -3,6 +3,7 @@ package io.dovid.multitimer;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -57,7 +58,9 @@ class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewHolder> 
         this.context = context;
         databaseHelper = DatabaseHelper.getInstance(context);
         timers = TimerDAO.getTimers(databaseHelper);
-        TimerRunner.run(context);
+
+        Intent i = new Intent(context, TimerRunner.class);
+        context.startService(i);
     }
 
     public void refreshTimers() {
