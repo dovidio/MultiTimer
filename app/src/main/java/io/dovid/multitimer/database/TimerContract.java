@@ -18,6 +18,7 @@ public final class TimerContract {
         public static final String TABLE_NAME = "TIMER";
         public static final String NAME = "NAME";
         public static final String DEFAULT_TIME = "DEFAULT_TIME";
+        public static final String PlAY_STARTED_AT = "PlAY_STARTED_AT";
         public static final String EXPIRED_TIME = "EXPIRED_TIME";
         public static final String IS_RUNNING = "IS_RUNNING";
         public static final String SHOULD_NOTIFY = "SHOULD_NOTIFY";
