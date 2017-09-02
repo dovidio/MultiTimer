@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
     private RecyclerView mRecyclerView;
     private TimersAdapter mAdapter;
     private DatabaseHelper databaseHelper;
+    private static final String TAG = "MAINACTIVITY";
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
