@@ -6,14 +6,23 @@
     <color name="appBar">#E0E0E0</color>
     <color name="statusBar">#757575</color>
 
-    <color name="card1">#009688</color>
-    <color name="card2">#00BBD3</color>
-    <color name="card3">#F44336</color>
-    <color name="card4">#E91E63</color>
-    <color name="card5">#9C27B0</color>
-    <color name="card6">#673AB7</color>
-    <color name="card7">#3F51B5</color>
-    <color name="card8">#2196F3</color>
-    <color name="card9">#FF5722</color>
-    <color name="card10">#607D8B</color>
+    <color name="material_card1">#009688</color>
+    <color name="material_card2">#00BBD3</color>
+    <color name="material_card3">#F44336</color>
+    <color name="material_card4">#E91E63</color>
+    <color name="material_card5">#FF5722</color>
+    <color name="material_card6">#9C27B0</color>
+    <color name="material_card7">#673AB7</color>
+    <color name="material_card8">#3F51B5</color>
+    <color name="material_card9">#607D8B</color>
+    <color name="material_card10">#2196F3</color>
+
+    <color name="vintage_card1">#969078</color>
+    <color name="vintage_card2">#d4b4a9</color>
+    <color name="vintage_card3">#c4ccf5</color>
+
+    <color name="dark_card">#333335</color>
+
+    <color name="cream">#ece57a</color>
+
 </resources>
