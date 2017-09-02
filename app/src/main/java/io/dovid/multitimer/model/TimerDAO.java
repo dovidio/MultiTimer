@@ -25,7 +25,7 @@ public class TimerDAO {
 
     private static final String TAG = "TIMERDAO";
 
-    public static void create(final DatabaseHelper databaseHelper, final String name,
+    public synchronized static void create(final DatabaseHelper databaseHelper, final String name,
                               final long time, final boolean isRunning, final boolean shouldNotify) {
 
         SQLiteDatabase writeDatabase = null;
@@ -87,7 +87,7 @@ public class TimerDAO {
         return timers;
     }
 
-    public static void updateTimerExpiredTime(final DatabaseHelper databaseHelper, final int timerId, final long expiredTime) {
+    public synchronized static void updateTimerExpiredTime(final DatabaseHelper databaseHelper, final int timerId, final long expiredTime) {
         SQLiteDatabase writeDatabase = null;
 
         try {
@@ -107,7 +107,7 @@ public class TimerDAO {
         }
     }
 
-    public static void updateTimerRunning(final DatabaseHelper databaseHelper, final int timerId, final boolean isRunning) {
+    public synchronized static void updateTimerRunning(final DatabaseHelper databaseHelper, final int timerId, final boolean isRunning) {
         SQLiteDatabase writeDatabase = null;
 
         try {
@@ -130,7 +130,7 @@ public class TimerDAO {
 
 
 
-    public static void updateTimer(final DatabaseHelper databaseHelper, final int timerId,
+    public synchronized static void updateTimer(final DatabaseHelper databaseHelper, final int timerId,
                                    final String name, final long defaultTime, final long expireTime) {
         SQLiteDatabase writeDatabase = null;
 
@@ -152,7 +152,7 @@ public class TimerDAO {
         }
     }
 
-    public static Object getProperty(final DatabaseHelper databaseHelper, final String property, final int timerId) {
+    public synchronized static Object getProperty(final DatabaseHelper databaseHelper, final String property, final int timerId) {
         SQLiteDatabase writeDatabase = null;
         Cursor c = null;
 
@@ -197,7 +197,7 @@ public class TimerDAO {
         return null;
     }
 
-    public static void printTimerTableStatistic(final DatabaseHelper databaseHelper) {
+    public synchronized static void printTimerTableStatistic(final DatabaseHelper databaseHelper) {
 
         SQLiteDatabase writeDatabase = null;
         Cursor c = null;
@@ -232,7 +232,7 @@ public class TimerDAO {
         }
     }
 
-    public static void deleteTimer(final DatabaseHelper databaseHelper, final int timerId) {
+    public synchronized static void deleteTimer(final DatabaseHelper databaseHelper, final int timerId) {
         SQLiteDatabase writeDatabase = null;
 
         try {
@@ -247,7 +247,7 @@ public class TimerDAO {
         }
     }
 
-    public static void updateTimerShouldNotify(final DatabaseHelper databaseHelper, final int timerId, final boolean shouldNotify) {
+    public synchronized static void updateTimerShouldNotify(final DatabaseHelper databaseHelper, final int timerId, final boolean shouldNotify) {
 
         SQLiteDatabase writeDatabase = null;
 
