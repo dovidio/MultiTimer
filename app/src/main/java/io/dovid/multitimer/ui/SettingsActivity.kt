@@ -48,12 +48,6 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_general)
             setHasOptionsMenu(true)
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"))
             bindPreferenceSummaryToValue(findPreference("color_theme_list"))
         }
 
@@ -93,11 +87,9 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
     companion object {
 
-
         private fun isXLargeTablet(context: Context): Boolean {
             return context.resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_XLARGE
         }
-
 
         private val sBindPreferenceSummaryToValueListener = Preference.OnPreferenceChangeListener { preference, value ->
             val stringValue = value.toString()
