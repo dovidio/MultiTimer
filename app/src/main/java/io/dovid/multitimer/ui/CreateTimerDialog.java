@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import io.dovid.multitimer.R;
+import io.dovid.multitimer.utilities.Converter;
 
 /**
  * Author: Umberto D'Ovidio
@@ -83,7 +84,7 @@ public class CreateTimerDialog extends DialogFragment {
                             int minutes = Integer.parseInt(minutesET.getText().toString().trim());
                             int seconds = Integer.parseInt(secondsET.getText().toString().trim());
 
-                            long milliseconds = (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+                            long milliseconds = Converter.hmsToMilliseconds(hours, minutes, seconds);
 
                             mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
                             dialog.dismiss();
