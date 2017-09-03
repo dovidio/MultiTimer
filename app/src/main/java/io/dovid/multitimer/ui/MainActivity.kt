@@ -107,16 +107,42 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        if (BuildConfig.PAID) {
+            menuInflater.inflate(R.menu.menu_main_paid, menu)
+        } else {
+
+        }
         return true
     }
 
     fun setupColors() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val colorTheme = preferences.getString("color_theme_list", "0")
+        if (BuildConfig.PAID) {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val colorTheme = preferences.getString("color_theme_list", "0")
 
-        if (colorTheme == MATERIAL_THEME) {
-            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimary))
+            if (colorTheme == MATERIAL_THEME) {
+                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimary))
+                colors = intArrayOf(R.color.material_card1,
+                        R.color.material_card2,
+                        R.color.material_card3,
+                        R.color.material_card4,
+                        R.color.material_card5,
+                        R.color.material_card6,
+                        R.color.material_card7,
+                        R.color.material_card8,
+                        R.color.material_card9,
+                        R.color.material_card10)
+            } else if (colorTheme == DARK_THEME) {
+                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_dark_material_dark))
+                colors = intArrayOf(R.color.dark_card)
+            } else {
+                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.cream))
+                colors = intArrayOf(
+                        R.color.vintage_card1,
+                        R.color.vintage_card2,
+                        R.color.vintage_card3)
+            }
+        } else {
             colors = intArrayOf(R.color.material_card1,
                     R.color.material_card2,
                     R.color.material_card3,
@@ -127,18 +153,8 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                     R.color.material_card8,
                     R.color.material_card9,
                     R.color.material_card10)
-        } else if (colorTheme == DARK_THEME) {
-            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_dark_material_dark))
-            colors = intArrayOf(R.color.dark_card)
-        } else {
-            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.cream))
-            colors = intArrayOf(
-                    R.color.vintage_card1,
-                    R.color.vintage_card2,
-                    R.color.vintage_card3)
         }
     }
-
 
     companion object {
         private val TAG = "MAINACTIVITY"
