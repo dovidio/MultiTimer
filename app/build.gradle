@@ -30,6 +30,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors {
+        free {
+            applicationId "io.dovid.multitimer.free"
+            buildConfigField 'boolean', 'PAID', "false"
+
+        }
+        paid {
+            applicationId "io.dovid.multitimer.paid"
+            buildConfigField 'boolean', 'PAID', "true"
+        }
+    }
 }
 
 
