@@ -49,13 +49,10 @@ public class CreateTimerDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View v = inflater.inflate(R.layout.timer_create_dialog, null, false);
 
-
         final EditText nameET = v.findViewById(R.id.editTextTimerName);
         final EditText hoursET = v.findViewById(R.id.editTextHours);
         final EditText minutesET = v.findViewById(R.id.editTextMinutes);
         final EditText secondsET = v.findViewById(R.id.editTextSeconds);
-
-
 
         builder.setView(v)
                 .setTitle(R.string.create_timer)
