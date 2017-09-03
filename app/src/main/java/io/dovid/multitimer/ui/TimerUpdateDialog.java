@@ -7,12 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import io.dovid.multitimer.BuildConfig;
@@ -20,7 +19,6 @@ import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.database.TimerContract;
 import io.dovid.multitimer.model.TimerDAO;
-import io.dovid.multitimer.utilities.Converter;
 import io.dovid.multitimer.utilities.InputFilterMinMax;
 
 /**
@@ -75,9 +73,9 @@ public class TimerUpdateDialog extends DialogFragment {
         final EditText hoursET = v.findViewById(R.id.editTextHours);
         final EditText minutesET = v.findViewById(R.id.editTextMinutes);
         final EditText secondsET = v.findViewById(R.id.editTextSeconds);
-        final EditText timerNameET = v.findViewById(R.id.editTextTimerName);
+        final EditText nameET = v.findViewById(R.id.editTextTimerName);
 
-        timerNameET.setText(timerName);
+        nameET.setText(timerName);
         String[] hoursMinutesSeconds = DurationFormatUtils.formatDuration(defaultTime, BuildConfig.ITALIANTIME).split(":");
 
         hoursET.setFilters(new InputFilter[] {
@@ -97,31 +95,42 @@ public class TimerUpdateDialog extends DialogFragment {
 
         builder.setView(v)
                 .setTitle(R.string.update_your_timer)
-                .setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.update, null);
+
+        final AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialogInterface) {
+                Button button = ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE);
+
+                button.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String name = timerNameET.getText().toString();
+                    public void onClick(View view) {
+                        String name = nameET.getText().toString().trim();
+                        if (name.equalsIgnoreCase("")) {
+                            nameET.setError("The name cannot be empty");
+                        } else if (hoursET.getText().toString().trim().equalsIgnoreCase("")) {
+                            hoursET.setError("Hours cannot be empty");
+                        } else if (minutesET.getText().toString().trim().equalsIgnoreCase("")) {
+                            minutesET.setError("Minutes cannot be empty");
+                        } else if (secondsET.getText().toString().trim().equalsIgnoreCase("")) {
+                            secondsET.setError("Seconds cannot be empty");
+                        } else {
+                            int hours = Integer.parseInt(hoursET.getText().toString().trim());
+                            int minutes = Integer.parseInt(minutesET.getText().toString().trim());
+                            int seconds = Integer.parseInt(secondsET.getText().toString().trim());
 
-                        if (!StringUtils.isNumeric(hoursET.getText().toString())) {
-                            hoursET.setText("0");
-                        }
-                        if (!StringUtils.isNumeric(minutesET.getText().toString())) {
-                            minutesET.setText("0");
-                        }
-                        if (!StringUtils.isNumeric(secondsET.getText().toString())) {
-                            secondsET.setText("0");
-                        }
+                            long milliseconds = (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
 
-                        long hours = Long.parseLong(hoursET.getText().toString());
-                        long minutes = Long.parseLong(minutesET.getText().toString());
-                        long seconds = Long.parseLong(secondsET.getText().toString());
-                        long defaultTime = Converter.hmsToMilliseconds(hours, minutes, seconds);
-
-                        Log.d(TAG, "saved default time milliseconds: " + defaultTime);
-                        mListener.onUpdate(name, defaultTime, timerId, TimerUpdateDialog.this);
+                            mListener.onUpdate(name, milliseconds, timerId, TimerUpdateDialog.this);
+                            dialog.dismiss();
+                        }
                     }
                 });
-        return builder.create();
+            }
+        });
+        return dialog;
     }
 
     @Override
