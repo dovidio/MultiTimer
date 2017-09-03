@@ -23,8 +23,6 @@ import io.dovid.multitimer.R;
 
 public class CreateTimerDialog extends DialogFragment {
 
-    // TODO: controllare che il nome inserito non sia vuoto
-
     private static final String TAG = "TIMERCREATEDIALOG";
 
     private CreateTimerDialog.TimerCreateDialogListener mListener;
