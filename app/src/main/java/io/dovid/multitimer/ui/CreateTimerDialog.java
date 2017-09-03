@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import io.dovid.multitimer.R;
@@ -21,6 +22,8 @@ import io.dovid.multitimer.R;
  */
 
 public class CreateTimerDialog extends DialogFragment {
+
+    // TODO: controllare che il nome inserito non sia vuoto
 
     private static final String TAG = "TIMERCREATEDIALOG";
 
@@ -56,19 +59,42 @@ public class CreateTimerDialog extends DialogFragment {
 
         builder.setView(v)
                 .setTitle(R.string.create_timer)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String name = nameET.getText().toString();
-                        int hours = Integer.parseInt(hoursET.getText().toString());
-                        int minutes = Integer.parseInt(minutesET.getText().toString());
-                        int seconds = Integer.parseInt(secondsET.getText().toString());
-                        long milliseconds = (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+                .setPositiveButton(android.R.string.ok, null);
 
-                        mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
+        final AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button button = ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_POSITIVE);
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String name = nameET.getText().toString().trim();
+                        if (name.equalsIgnoreCase("")) {
+                            nameET.setError("The name cannot be empty");
+                        } else if (hoursET.getText().toString().trim().equalsIgnoreCase("")) {
+                            hoursET.setError("Hours cannot be empty");
+                        } else if (minutesET.getText().toString().trim().equalsIgnoreCase("")) {
+                            minutesET.setError("Minutes cannot be empty");
+                        } else if (secondsET.getText().toString().trim().equalsIgnoreCase("")) {
+                            secondsET.setError("Seconds cannot be empty");
+                        } else {
+                            int hours = Integer.parseInt(hoursET.getText().toString().trim());
+                            int minutes = Integer.parseInt(minutesET.getText().toString().trim());
+                            int seconds = Integer.parseInt(secondsET.getText().toString().trim());
+
+                            long milliseconds = (hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+
+                            mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
+                            dialog.dismiss();
+                        }
                     }
                 });
-        return builder.create();
+            }
+        });
+        return dialog;
     }
 
     @Override
