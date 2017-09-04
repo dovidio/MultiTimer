@@ -17,9 +17,12 @@
     <color name="material_card9">#607D8B</color>
     <color name="material_card10">#2196F3</color>
 
-    <color name="vintage_card1">#969078</color>
-    <color name="vintage_card2">#d4b4a9</color>
-    <color name="vintage_card3">#c4ccf5</color>
+    <color name="bakery_card1">#807b6e</color>
+    <color name="bakery_card2">#da969a</color>
+    <color name="bakery_card3">#da9379</color>
+    <color name="bakery_card4">#84bcb9</color>
+    <color name="bakery_card5">#4b2b10</color>
+
 
     <color name="dark_card">#333335</color>
 
