@@ -33,6 +33,12 @@
                 <action android:name="io.dovid.multimer.TIME_IS_UP" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".utilities.RebootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
