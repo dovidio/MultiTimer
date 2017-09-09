@@ -1,5 +1,6 @@
 package io.dovid.multitimer.ui
 
+import android.app.AlertDialog
 import android.app.DialogFragment
 import android.content.*
 import android.content.res.ColorStateList
@@ -28,10 +29,6 @@ import tourguide.tourguide.TourGuide
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
 
     // TODO: aggiungere pubblicità versione free
-
-    // TODO: aggiungere label per ore, minuti e secondi
-
-    // TODO: limitare numero di timer per versione free e versione a pagamento
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
@@ -70,10 +67,23 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         fab = findViewById(R.id.fab) as FloatingActionButton
         fab?.setOnClickListener {
-            val createDialog = CreateTimerDialog.getInstance()
-            createDialog.show(fragmentManager, "createTimer")
             mTourGuideHandler?.cleanUp()
             sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+
+            if (mAdapter?.itemCount ?: 0 < BuildConfig.MAX_TIMERS) {
+                val createDialog = CreateTimerDialog.getInstance()
+                createDialog.show(fragmentManager, "createTimer")
+            } else {
+                val builder = AlertDialog.Builder(this@MainActivity).setTitle("Maximum number of timers achieved")
+                if (!BuildConfig.PAID) {
+                    builder.setMessage("Upgrade to the pro version to get up to 10 timers")
+                } else {
+                    builder.setMessage("Already achieved maximum number of timers. You can delete timers by long pressing on them and choosing delete.")
+                }
+                builder.setPositiveButton(getString(android.R.string.ok), DialogInterface.OnClickListener { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }).create().show()
+            }
         }
 
         if (!sharedPreferences.contains("tutorial1")) {
@@ -87,6 +97,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                     })
                     .playOn(fab)
         }
+
         setupColors()
     }
 
