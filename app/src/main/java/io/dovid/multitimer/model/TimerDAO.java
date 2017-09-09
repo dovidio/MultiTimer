@@ -11,7 +11,15 @@ import java.util.ArrayList;
 import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.database.DatabaseHelper;
 
-import static io.dovid.multitimer.database.TimerContract.Timer.*;
+import static io.dovid.multitimer.database.TimerContract.Timer.DEFAULT_TIME;
+import static io.dovid.multitimer.database.TimerContract.Timer.EXPIRED_TIME;
+import static io.dovid.multitimer.database.TimerContract.Timer.IS_ANIMATING;
+import static io.dovid.multitimer.database.TimerContract.Timer.IS_RUNNING;
+import static io.dovid.multitimer.database.TimerContract.Timer.NAME;
+import static io.dovid.multitimer.database.TimerContract.Timer.PlAY_STARTED_AT;
+import static io.dovid.multitimer.database.TimerContract.Timer.SHOULD_NOTIFY;
+import static io.dovid.multitimer.database.TimerContract.Timer.TABLE_NAME;
+import static io.dovid.multitimer.database.TimerContract.Timer._ID;
 
 
 /**
@@ -59,7 +67,7 @@ public class TimerDAO {
 
         try {
             writeDatabase = databaseHelper.getWritableDatabase();
-            String query = "SELECT * FROM " + TABLE_NAME;
+            String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY _ID ASC";
 
             timersCursor = writeDatabase.rawQuery(query, null);
 
@@ -71,6 +79,7 @@ public class TimerDAO {
                 timer.setExpiredTime(timersCursor.getLong(timersCursor.getColumnIndexOrThrow(EXPIRED_TIME)));
                 timer.setRunning(timersCursor.getInt(timersCursor.getColumnIndexOrThrow(IS_RUNNING)) != 0);
                 timer.setShouldNotify(timersCursor.getInt(timersCursor.getColumnIndexOrThrow(SHOULD_NOTIFY)) != 0);
+                timer.setAnimating(timersCursor.getInt(timersCursor.getColumnIndexOrThrow(IS_ANIMATING)) != 0);
                 timers.add(timer);
             }
 
@@ -177,7 +186,7 @@ public class TimerDAO {
             writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
-            cv.put(PlAY_STARTED_AT, (new java.util.Date()).getTime());
+            cv.put(PlAY_STARTED_AT, timestamp);
 
             writeDatabase.update(TABLE_NAME, cv, "_ID=?", new String[]{String.valueOf(timerId)});
         } catch (SQLiteException e) {
@@ -340,6 +349,24 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, "_ID=" + timerId, null);
         } catch (SQLiteException e) {
             Log.e(TAG, "putPlayTimeStampNull: ", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (writeDatabase != null && writeDatabase.isOpen()) {
+                writeDatabase.close();
+            }
+        }
+    }
+
+    public synchronized static void updateIsAnimating(final DatabaseHelper databaseHelper, final int timerId, boolean isAnimating) {
+        SQLiteDatabase writeDatabase = null;
+
+        try {
+            writeDatabase = databaseHelper.getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put(IS_ANIMATING, isAnimating);
+            writeDatabase.update(TABLE_NAME, cv, "_ID=" + timerId, null);
+        } catch (SQLiteException e) {
+            Log.e(TAG, "updateIsAnimating: ", e);
             throw new RuntimeException(e);
         } finally {
             if (writeDatabase != null && writeDatabase.isOpen()) {
