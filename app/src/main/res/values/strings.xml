@@ -102,4 +102,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="timers_color_theme">Timers\' color theme</string>
+    <string name="go_pro">Go pro</string>
 </resources>
