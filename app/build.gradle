@@ -58,7 +58,14 @@ dependencies {
     compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
     compile 'com.android.support:support-v4:26.+'
     testCompile 'junit:junit:4.12'
+    compile('com.github.worker8:tourguide:1.0.17-SNAPSHOT@aar') {
+        transitive = true
+    }
 }
+
 repositories {
     mavenCentral()
+    maven() {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
