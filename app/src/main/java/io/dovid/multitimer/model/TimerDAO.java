@@ -213,7 +213,8 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, "_ID=?", new String[]{String.valueOf(timerId)});
 
         } catch (SQLiteException e) {
-
+            Log.e(TAG, "updateTimer: ", e);
+            throw new RuntimeException(e);
         } finally {
             if (writeDatabase != null && writeDatabase.isOpen()) {
                 writeDatabase.close();
@@ -255,6 +256,7 @@ public class TimerDAO {
             }
         } catch (SQLiteException e) {
             Log.e(TAG, "getPropert: ", e);
+            throw new RuntimeException(e);
         } finally {
             if (writeDatabase != null && writeDatabase.isOpen()) {
                 writeDatabase.close();
@@ -328,7 +330,8 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, _ID + "=?", new String[]{String.valueOf(timerId)});
 
         } catch (SQLiteException e) {
-
+            Log.e(TAG, "updateTimerShouldNotify: ", e);
+            throw new RuntimeException(e);
         } finally {
             if (writeDatabase != null && writeDatabase.isOpen()) {
                 writeDatabase.close();
