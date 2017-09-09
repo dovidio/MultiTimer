@@ -93,7 +93,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        // TODO: Creare pagina about e pagina versione pro
         when (item?.itemId) {
             R.id.action_settings -> {
                 val i = Intent(this, SettingsActivity::class.java)
@@ -101,6 +100,9 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
             }
             R.id.action_about -> {
                 AboutDialog.getInstance().show(fragmentManager, "AboutDialog")
+            }
+            R.id.action_purchase_pro -> {
+                GoProDialog.getInstance().show(fragmentManager, "GoProDialog")
             }
         }
         return super.onOptionsItemSelected(item)
@@ -110,6 +112,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         if (BuildConfig.PAID) {
             menuInflater.inflate(R.menu.menu_main_paid, menu)
         } else {
+            menuInflater.inflate(R.menu.menu_main_free, menu)
 
         }
         return true
