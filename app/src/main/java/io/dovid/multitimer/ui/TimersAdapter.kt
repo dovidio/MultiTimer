@@ -107,7 +107,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
 
             timerNameTV.text = timer.name
             timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
-            timerNameTV.setOnCreateContextMenuListener { contextMenu, view, _ ->
+            itemView.setOnCreateContextMenuListener { contextMenu, view, _ ->
                 contextMenu.setHeaderTitle(R.string.what_to_do)
                 contextMenu.add(0, view.id, 0, R.string.delete).setOnMenuItemClickListener {
                     deleteTimer(position)
@@ -154,12 +154,14 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
 
             resetButton.setOnClickListener {
-                playAnimation(timer, willPlay = false)
-                TimerDAO.updateTimerRunning(databaseHelper, timer.id, false)
-                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.id, timer.defaultTime)
-                TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
-                refreshTimers()
-                TimerAlarmManager.setupAlarms(context, timers)
+                if (timer.defaultTime > 1000) {
+                    playAnimation(timer, willPlay = false)
+                    TimerDAO.updateTimerRunning(databaseHelper, timer.id, false)
+                    TimerDAO.updateTimerExpiredTime(databaseHelper, timer.id, timer.defaultTime)
+                    TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
+                    refreshTimers()
+                    TimerAlarmManager.setupAlarms(context, timers)
+                }
             }
 
             pause.setOnClickListener {
