@@ -1,12 +1,10 @@
 package io.dovid.multitimer.ui
 
 import android.app.DialogFragment
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
@@ -14,22 +12,36 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
+import tourguide.tourguide.Overlay
+import tourguide.tourguide.Pointer
+import tourguide.tourguide.ToolTip
+import tourguide.tourguide.TourGuide
+
 
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
+
+    // TODO: aggiungere pubblicità versione free
+
+    // TODO: aggiungere label per ore, minuti e secondi
+
+    // TODO: limitare numero di timer per versione free e versione a pagamento
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
     private var databaseHelper: DatabaseHelper? = null
     private var fab: FloatingActionButton? = null
+    private var mTourGuideHandler: TourGuide? = null
     lateinit var colors: IntArray
+    private lateinit var sharedPreferences: SharedPreferences
 
-    internal var receiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private var receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             mAdapter?.refreshTimers()
         }
@@ -38,8 +50,10 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         val toolbar = findViewById(R.id.toolbar) as Toolbar
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
         setSupportActionBar(toolbar)
 
         databaseHelper = DatabaseHelper.getInstance(this)
@@ -52,10 +66,26 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         mRecyclerView?.layoutManager = manager
         mRecyclerView?.adapter = mAdapter
 
+
+
         fab = findViewById(R.id.fab) as FloatingActionButton
         fab?.setOnClickListener {
             val createDialog = CreateTimerDialog.getInstance()
             createDialog.show(fragmentManager, "createTimer")
+            mTourGuideHandler?.cleanUp()
+            sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+        }
+
+        if (!sharedPreferences.contains("tutorial1")) {
+            mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
+                    .setPointer(Pointer().setGravity(Gravity.TOP))
+                    .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
+                            setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
+                    .setOverlay(Overlay().setOnClickListener {
+                        mTourGuideHandler?.cleanUp()
+                        sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+                    })
+                    .playOn(fab)
         }
         setupColors()
     }
@@ -64,6 +94,29 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         TimerDAO.create(databaseHelper, name, time, false, true)
         mAdapter?.insertTimer()
         dialog.dismiss()
+        if (!sharedPreferences.contains("tutorial2")) {
+            mRecyclerView?.smoothScrollToPosition((mAdapter?.itemCount ?: 1) - 1)
+            Handler().postDelayed({
+                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.VerticalDownward)
+                        .setToolTip(ToolTip()
+                                .setDescription(getString(R.string.long_press_timer)).setGravity(Gravity.CENTER).setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+                        })
+                        .setOverlay(Overlay().setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+                        }.setStyle(Overlay.Style.Rectangle))
+                        .playOn(mRecyclerView?.getChildAt(0))
+
+            }, 1000)
+        }
+
+        Handler().postDelayed({
+            mTourGuideHandler?.cleanUp()
+            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+        }, 6000)
+
     }
 
     override fun onUpdate(name: String, defaultTime: Long, timerId: Int, dialog: DialogFragment) {
@@ -103,6 +156,18 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
             }
             R.id.action_purchase_pro -> {
                 GoProDialog.getInstance().show(fragmentManager, "GoProDialog")
+            }
+            R.id.action_play_tutorial -> {
+                sharedPreferences.edit().remove("tutorial1").remove("tutorial2").commit()
+                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
+                        .setPointer(Pointer().setGravity(Gravity.TOP))
+                        .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
+                                setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
+                        .setOverlay(Overlay().setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+                        })
+                        .playOn(fab)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -166,4 +231,5 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         private val MATERIAL_THEME = "0"
         private val DARK_THEME = "1"
     }
+
 }
