@@ -86,8 +86,12 @@ public class CreateTimerDialog extends DialogFragment {
 
                             long milliseconds = Converter.hmsToMilliseconds(hours, minutes, seconds);
 
-                            mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
-                            dialog.dismiss();
+                            if (milliseconds == 0) {
+                                secondsET.setError("Timer must at least be one second long");
+                            } else {
+                                mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
+                                dialog.dismiss();
+                            }
                         }
                     }
                 });
