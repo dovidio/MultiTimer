@@ -8,7 +8,6 @@ import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.ui.TimesUpActivity
 
 class AlarmReceiver : BroadcastReceiver() {
-    // TODO: Aggiungere un broadcast receiver che ascolta il reboot dell'app
     private val TAG = "ALARMRECEIVER"
 
     override fun onReceive(context: Context, intent: Intent) {
