@@ -21,6 +21,7 @@ import io.dovid.multitimer.utilities.TimerRunner
 import org.apache.commons.lang.time.DurationFormatUtils
 import java.util.*
 
+
 /**
  * Author: Umberto D'Ovidio
  * Date: 19/08/17
@@ -30,9 +31,12 @@ import java.util.*
  */
 
 internal class TimersAdapter(private val context: Context) : RecyclerView.Adapter<TimersAdapter.TimerViewHolder>() {
-    private var timers: ArrayList<TimerEntity>? = null
+    // TODO: animazioni quando si fa partire un timer
+
+    private var timers: ArrayList<TimerEntity>
     private val databaseHelper: DatabaseHelper
     private lateinit var colors: IntArray
+    private var lastPosition = -1
 
     init {
         databaseHelper = DatabaseHelper.getInstance(context)
@@ -51,9 +55,14 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         notifyDataSetChanged()
     }
 
+    fun insertTimer() {
+        timers = TimerDAO.getTimers(databaseHelper)
+        notifyItemInserted(timers.size)
+    }
+
     private fun deleteTimer(position: Int) {
         TimerDAO.deleteTimer(databaseHelper, timers!![position].id)
-        refreshTimers()
+        notifyItemRemoved(position)
     }
 
     private fun showUpdateTimerDialog(position: Int) {
@@ -76,7 +85,6 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         return timers!!.size
     }
 
-
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(position: Int) {
@@ -95,8 +103,10 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val timerNameTV = itemView.findViewById<TextView>(R.id.textViewTimerName)
             val defaultTimeTV = itemView.findViewById<TextView>(R.id.textViewDefaultTime)
 
-            timerNameTV.text = timers!![position].name
-            timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[position % colors.size]))
+            val timer = timers[position]
+
+            timerNameTV.text = timer.name
+            timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
             timerNameTV.setOnCreateContextMenuListener { contextMenu, view, contextMenuInfo ->
                 contextMenu.setHeaderTitle(R.string.what_to_do)
                 contextMenu.add(0, view.id, 0, R.string.delete).setOnMenuItemClickListener {
@@ -110,22 +120,24 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
                 }
             }
 
-            defaultTimeTV.text = DurationFormatUtils.formatDuration(timers!![position].defaultTime, BuildConfig.ITALIANTIME)
+            defaultTimeTV.text = DurationFormatUtils.formatDuration(timer.defaultTime, BuildConfig.ITALIANTIME)
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
             playButton.setOnClickListener {
-                TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers!![position].id, java.util.Date().time)
-                TimerDAO.updateTimerRunning(databaseHelper, timers!![position].id, true)
+                TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time)
+                TimerDAO.updateTimerRunning(databaseHelper, timer.id, true)
                 refreshTimers()
-                TimerAlarmManager.setupAlarms(context, timers!!)
+                TimerAlarmManager.setupAlarms(context, timers)
             }
 
             val switchButton = itemView.findViewById<Switch>(R.id.switchNotify)
-            switchButton.isChecked = timers!![position].shouldNotify()
+            switchButton.isChecked = timer.shouldNotify()
 
-            switchButton.setOnCheckedChangeListener { compoundButton, b -> TimerDAO.updateTimerShouldNotify(databaseHelper, timers!![position].id, b) }
+            switchButton.setOnCheckedChangeListener { compoundButton, b -> TimerDAO.updateTimerShouldNotify(databaseHelper, timer.id, b) }
         }
 
         private fun setupPlayView(position: Int) {
+
+            val timer = timers[position]
 
             itemView.findViewById<View>(R.id.pauseTimer).visibility = View.GONE
             itemView.findViewById<View>(R.id.playTimer).visibility = View.VISIBLE
@@ -133,40 +145,44 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val pause = itemView.findViewById<ImageButton>(R.id.buttonPause)
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
 
-            countdownRunning.text = DurationFormatUtils.formatDuration(timers!![position].expiredTime, BuildConfig.ITALIANTIME)
+            countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
             countdownRunning.setBackgroundResource(colors[position % colors.size])
 
             val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
-            resetButton.setTextColor(ContextCompat.getColor(context, colors[position % colors.size]))
+            resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
 
             resetButton.setOnClickListener {
                 itemView.findViewById<View>(R.id.playTimer).visibility = View.GONE
                 itemView.findViewById<View>(R.id.pauseTimer).visibility = View.VISIBLE
-                TimerDAO.updateTimerRunning(databaseHelper, timers!![position].id, false)
-                TimerDAO.updateTimerExpiredTime(databaseHelper, timers!![position].id, timers!![position].defaultTime)
-                TimerDAO.putPlayTimeStampNull(databaseHelper, timers!![position].id)
+                TimerDAO.updateTimerRunning(databaseHelper, timer.id, false)
+                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.id, timer.defaultTime)
+                TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
                 refreshTimers()
-                TimerAlarmManager.setupAlarms(context, timers!!)
+                TimerAlarmManager.setupAlarms(context, timers)
             }
 
             pause.setOnClickListener {
-                if (timers!![position].isRunning) {
+                if (timer.isRunning) {
                     pause.setImageResource(R.drawable.play_icon)
-                    TimerDAO.putPlayTimeStampNull(databaseHelper, timers!![position].id)
+                    TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
                 } else {
                     pause.setImageResource(R.drawable.pause_icon)
-                    TimerDAO.updateTimerPlayTimestamp(databaseHelper, timers!![position].id, java.util.Date().time)
+                    TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time - (timer.defaultTime - timer.expiredTime))
                 }
-                TimerDAO.updateTimerRunning(databaseHelper, timers!![position].id, !timers!![position].isRunning)
+                TimerDAO.updateTimerRunning(databaseHelper, timer.id, !timer.isRunning)
                 refreshTimers()
-                TimerAlarmManager.setupAlarms(context, timers!!)
+                TimerAlarmManager.setupAlarms(context, timers)
             }
 
-            if (timers!![position].expiredTime != timers!![position].defaultTime) {
-                if (!timers!![position].isRunning) {
+            if (timer.expiredTime != timer.defaultTime) {
+                if (!timer.isRunning) {
                     pause.setImageResource(R.drawable.play_icon)
                 }
             }
+        }
+
+        fun clearAnimation() {
+            itemView.clearAnimation()
         }
     }
 
