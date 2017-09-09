@@ -24,6 +24,8 @@ import io.dovid.multitimer.model.TimerDAO
 
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
 
+    // TODO: icona launcher
+
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
     private var databaseHelper: DatabaseHelper? = null
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
     override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
         TimerDAO.create(databaseHelper, name, time, false, true)
-        mAdapter?.refreshTimers()
+        mAdapter?.insertTimer()
         dialog.dismiss()
     }
 
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        // TODO: Creare pagina about e pagina versione pro
         when (item?.itemId) {
             R.id.action_settings -> {
                 val i = Intent(this, SettingsActivity::class.java)
@@ -136,11 +139,13 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                 fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_dark_material_dark))
                 colors = intArrayOf(R.color.dark_card)
             } else {
-                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.cream))
+                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bakery_card2))
                 colors = intArrayOf(
-                        R.color.vintage_card1,
-                        R.color.vintage_card2,
-                        R.color.vintage_card3)
+                        R.color.bakery_card1,
+                        R.color.bakery_card2,
+                        R.color.bakery_card3,
+                        R.color.bakery_card4,
+                        R.color.bakery_card5)
             }
         } else {
             colors = intArrayOf(R.color.material_card1,
@@ -160,6 +165,5 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         private val TAG = "MAINACTIVITY"
         private val MATERIAL_THEME = "0"
         private val DARK_THEME = "1"
-        private val VINTAGE_THEME = "2"
     }
 }
