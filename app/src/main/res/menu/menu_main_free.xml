@@ -3,13 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="io.dovid.multitimer.ui.MainActivity">
     <item
+        android:id="@+id/action_purchase_pro"
+        android:orderInCategory="100"
+        android:title="@string/go_pro"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_about"
         android:orderInCategory="200"
         android:title="@string/action_about"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_purchase_pro"
+        android:id="@+id/action_play_tutorial"
         android:orderInCategory="300"
-        android:title="@string/go_pro"
+        android:title="@string/play_initial_tutorial_again"
         app:showAsAction="never" />
 </menu>
