@@ -1,5 +1,9 @@
 package io.dovid.multitimer.ui
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat
@@ -36,12 +40,10 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     private var timers: ArrayList<TimerEntity>
     private val databaseHelper: DatabaseHelper
     private lateinit var colors: IntArray
-    private var lastPosition = -1
 
     init {
         databaseHelper = DatabaseHelper.getInstance(context)
         timers = TimerDAO.getTimers(databaseHelper)
-
         TimerRunner.run(context)
     }
 
@@ -88,10 +90,12 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(position: Int) {
-            if (timers!![position].isRunning || timers!![position].defaultTime != timers!![position].expiredTime) {
-                setupPlayView(position)
-            } else {
-                setupPauseView(position)
+            if (!timers!![position].isAnimating) {
+                if (timers!![position].isRunning || timers!![position].defaultTime != timers!![position].expiredTime) {
+                    setupPlayView(position)
+                } else {
+                    setupPauseView(position)
+                }
             }
         }
 
@@ -122,11 +126,38 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
 
             defaultTimeTV.text = DurationFormatUtils.formatDuration(timer.defaultTime, BuildConfig.ITALIANTIME)
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
+
             playButton.setOnClickListener {
+                val scale = 1.3911439F
+
+                setupPlayColors(timer)
+                itemView.findViewById<View>(R.id.playTimer).visibility = View.VISIBLE
+                itemView.findViewById<View>(R.id.playTimer).alpha = 0f
+
+                val animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_left_out) as AnimatorSet
+                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
+
+                val animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_left_in) as AnimatorSet
+                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.playTimer))
+
+                val allAnimatorSet = AnimatorSet()
+
+                allAnimatorSet.playTogether(animatorSetCardOut, animatorSetCardIn)
+
+                allAnimatorSet.duration = 700
+                timer.isAnimating = true
+
                 TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time)
                 TimerDAO.updateTimerRunning(databaseHelper, timer.id, true)
                 refreshTimers()
                 TimerAlarmManager.setupAlarms(context, timers)
+
+                allAnimatorSet.addListener(MyAnimationListenerAdapter(object : onAnimationStopDoneListener {
+                    override fun onAnimationStopDone() {
+                        timer.isAnimating = false
+                    }
+                }))
+                allAnimatorSet.start()
             }
 
             val switchButton = itemView.findViewById<Switch>(R.id.switchNotify)
@@ -146,7 +177,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
 
             countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
-            countdownRunning.setBackgroundResource(colors[position % colors.size])
+            countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
 
             val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
@@ -181,8 +212,36 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             }
         }
 
+        private fun setupPlayColors(timer: TimerEntity) {
+            val pause = itemView.findViewById<ImageButton>(R.id.buttonPause)
+            val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
+
+            countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
+            countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
+
+            val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
+            resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
+        }
+
         fun clearAnimation() {
             itemView.clearAnimation()
+        }
+    }
+
+    interface onAnimationStopDoneListener {
+        fun onAnimationStopDone()
+    }
+
+    inner class MyAnimationListenerAdapter(delegate: onAnimationStopDoneListener) : AnimatorListenerAdapter() {
+
+        var delegate: onAnimationStopDoneListener
+
+        init {
+            this.delegate = delegate
+        }
+
+        override fun onAnimationEnd(animation: Animator?) {
+            delegate.onAnimationStopDone()
         }
     }
 
