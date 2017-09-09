@@ -103,4 +103,16 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="timers_color_theme">Timers\' color theme</string>
     <string name="go_pro">Go pro</string>
+    <string name="about_app">MultiTimer was developed by Umberto D\'Ovidio.
+        Check other apps from this developer in the Google Play Store and visit my website http://dovid.io.</string>
+    <string name="about">About</string>
+    <string name="tired_of_ads">Tired of ads? Go pro!</string>
+    <string name="our_pro_app">With our pro app you will get rid of ads!</string>
+    <string name="ready_for_a_new_look">Ready for a new look?</string>
+    <string name="choose_among_themes">Choose among three beautiful themes and customize your experience!</string>
+    <string name="google_play_store">Take me to the Google Play Store</string>
+    <string name="need_more_timers">Need more timers?</string>
+    <string name="you_can_get_up_to">Go pro and you\'ll be able to set up to 10 timers!</string>
+    <string name="choose_ringtone">Choose the ringtone!</string>
+    <string name="sick_of_default_ringtone">Sick of the default ringtone? With our pro app you can choose it!</string>
 </resources>

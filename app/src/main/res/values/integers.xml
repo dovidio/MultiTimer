@@ -2,4 +2,6 @@
 <resources>
     <integer name="card_flip_time_full">500</integer>
     <integer name="card_flip_time_half">250</integer>
+    <integer name="timer_max_length">12</integer>
+    <integer name="timesup_length">25</integer>
 </resources>
