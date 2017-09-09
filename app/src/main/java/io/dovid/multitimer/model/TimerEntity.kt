@@ -15,9 +15,10 @@ class TimerEntity {
     var defaultTime: Long = 0
     var expiredTime: Long = 0
     var isRunning: Boolean = false
+    var isAnimating = false
     private var shouldNotify: Boolean = false
-
     constructor() : super() {}
+
 
     constructor(id: Int, name: String, countdownTime: Long, countdownTimeRunning: Long, currentlyRunning: Boolean, shouldNotify: Boolean) {
         this.id = id
