@@ -35,11 +35,13 @@ android {
         free {
             applicationId "io.dovid.multitimer.free"
             buildConfigField 'boolean', 'PAID', "false"
+            buildConfigField 'int', 'MAX_TIMERS', "5"
 
         }
         paid {
             applicationId "io.dovid.multitimer.paid"
             buildConfigField 'boolean', 'PAID', "true"
+            buildConfigField 'int', 'MAX_TIMERS', "10"
         }
     }
 }
