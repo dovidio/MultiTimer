@@ -118,4 +118,5 @@
     <string name="welcome">Welcome!</string>
     <string name="click_on_this_button">Click on this button to add a timer</string>
     <string name="long_press_timer">If you want to delete or update this timer, long touch it. If you want to start it, press the play button</string>
+    <string name="play_initial_tutorial_again">Play initial tutorial again</string>
 </resources>
