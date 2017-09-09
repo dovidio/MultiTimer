@@ -35,7 +35,6 @@ import java.util.*
  */
 
 internal class TimersAdapter(private val context: Context) : RecyclerView.Adapter<TimersAdapter.TimerViewHolder>() {
-    // TODO: animazioni quando si fa partire un timer
 
     private var timers: ArrayList<TimerEntity>
     private val databaseHelper: DatabaseHelper
@@ -63,14 +62,14 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     }
 
     private fun deleteTimer(position: Int) {
-        TimerDAO.deleteTimer(databaseHelper, timers!![position].id)
+        TimerDAO.deleteTimer(databaseHelper, timers[position].id)
         notifyItemRemoved(position)
     }
 
     private fun showUpdateTimerDialog(position: Int) {
         val setupDialog = TimerUpdateDialog.getInstance(
                 databaseHelper,
-                timers!![position].id)
+                timers[position].id)
         setupDialog.show((context as Activity).fragmentManager, "create tag")
     }
 
@@ -90,8 +89,8 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(position: Int) {
-            if (!timers!![position].isAnimating) {
-                if (timers!![position].isRunning || timers!![position].defaultTime != timers!![position].expiredTime) {
+            if (!timers[position].isAnimating) {
+                if (timers[position].isRunning || timers[position].defaultTime != timers[position].expiredTime) {
                     setupPlayView(position)
                 } else {
                     setupPauseView(position)
@@ -128,36 +127,11 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
 
             playButton.setOnClickListener {
-                val scale = 1.3911439F
-
-                setupPlayColors(timer)
-                itemView.findViewById<View>(R.id.playTimer).visibility = View.VISIBLE
-                itemView.findViewById<View>(R.id.playTimer).alpha = 0f
-
-                val animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_left_out) as AnimatorSet
-                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
-
-                val animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_left_in) as AnimatorSet
-                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.playTimer))
-
-                val allAnimatorSet = AnimatorSet()
-
-                allAnimatorSet.playTogether(animatorSetCardOut, animatorSetCardIn)
-
-                allAnimatorSet.duration = 700
-                timer.isAnimating = true
-
+                playAnimation(timer, willPlay = true)
                 TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time)
                 TimerDAO.updateTimerRunning(databaseHelper, timer.id, true)
                 refreshTimers()
                 TimerAlarmManager.setupAlarms(context, timers)
-
-                allAnimatorSet.addListener(MyAnimationListenerAdapter(object : onAnimationStopDoneListener {
-                    override fun onAnimationStopDone() {
-                        timer.isAnimating = false
-                    }
-                }))
-                allAnimatorSet.start()
             }
 
             val switchButton = itemView.findViewById<Switch>(R.id.switchNotify)
@@ -183,8 +157,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
 
             resetButton.setOnClickListener {
-                itemView.findViewById<View>(R.id.playTimer).visibility = View.GONE
-                itemView.findViewById<View>(R.id.pauseTimer).visibility = View.VISIBLE
+                playAnimation(timer, willPlay = false)
                 TimerDAO.updateTimerRunning(databaseHelper, timer.id, false)
                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.id, timer.defaultTime)
                 TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
@@ -212,6 +185,12 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             }
         }
 
+        private fun setupPauseColors(timer: TimerEntity) {
+            val timerNameTV = itemView.findViewById<TextView>(R.id.textViewTimerName)
+            timerNameTV.text = timer.name
+            timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
+        }
+
         private fun setupPlayColors(timer: TimerEntity) {
             val pause = itemView.findViewById<ImageButton>(R.id.buttonPause)
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
@@ -223,8 +202,43 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
         }
 
-        fun clearAnimation() {
-            itemView.clearAnimation()
+        private fun playAnimation(timer: TimerEntity, willPlay: Boolean) {
+            timer.isAnimating = true
+            TimerDAO.updateIsAnimating(databaseHelper, timer.id, true)
+            val animatorSetCardOut: AnimatorSet
+            val animatorSetCardIn: AnimatorSet
+            if (willPlay) {
+                setupPlayColors(timer)
+
+                itemView.findViewById<View>(R.id.playTimer).visibility = View.VISIBLE
+                itemView.findViewById<View>(R.id.playTimer).alpha = 0f
+
+                animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_left_out) as AnimatorSet
+                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
+                animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_left_in) as AnimatorSet
+                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.playTimer))
+            } else {
+                setupPauseColors(timer)
+
+                itemView.findViewById<View>(R.id.pauseTimer).visibility = View.VISIBLE
+                itemView.findViewById<View>(R.id.pauseTimer).alpha = 0f
+
+                animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_right_out) as AnimatorSet
+                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.playTimer))
+                animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_right_in) as AnimatorSet
+                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
+            }
+
+            val allAnimatorSet = AnimatorSet()
+            allAnimatorSet.playTogether(animatorSetCardOut, animatorSetCardIn)
+            allAnimatorSet.duration = 500
+            allAnimatorSet.addListener(MyAnimationListenerAdapter(object : onAnimationStopDoneListener {
+                override fun onAnimationStopDone() {
+                    timer.isAnimating = false
+                    TimerDAO.updateIsAnimating(databaseHelper, timer.id, false)
+                }
+            }))
+            allAnimatorSet.start()
         }
     }
 
