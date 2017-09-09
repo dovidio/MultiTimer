@@ -36,6 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TimerContract.Timer.PlAY_STARTED_AT + " NUMERIC DEFAULT NULL," +
             TimerContract.Timer.EXPIRED_TIME + " NUMERIC NOT NULL," +
             TimerContract.Timer.IS_RUNNING + " INTEGER DEFAULT 0," +
+            TimerContract.Timer.IS_ANIMATING + " INTEGER DEFAULT 0," +
             TimerContract.Timer.SHOULD_NOTIFY + " INTEGER DEFAULT 1)";
 
     private static final String SQL_CREATE_TIMER_COLLECTION_TABLE = "CREATE TABLE " + TimerContract.TimerCollection.TABLE_NAME +
