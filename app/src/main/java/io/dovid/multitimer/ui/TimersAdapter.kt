@@ -86,7 +86,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(position: Int) {
-            if (!timers[position].isAnimating) {
+            if (!timers[position].isAnimating || timers[position].defaultTime >= 0) {
                 if (timers[position].isRunning || timers[position].defaultTime != timers[position].expiredTime) {
                     setupPlayView(position)
                 } else {
@@ -124,11 +124,13 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
 
             playButton.setOnClickListener {
-                playAnimation(timer, willPlay = true)
-                TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time)
-                TimerDAO.updateTimerRunning(databaseHelper, timer.id, true)
-                refreshTimers()
-                TimerAlarmManager.setupAlarms(context, timers)
+                if (timer.defaultTime >= 1000) {
+                    playAnimation(timer, willPlay = true)
+                    TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.id, java.util.Date().time)
+                    TimerDAO.updateTimerRunning(databaseHelper, timer.id, true)
+                    refreshTimers()
+                    TimerAlarmManager.setupAlarms(context, timers)
+                }
             }
 
             val switchButton = itemView.findViewById<Switch>(R.id.switchNotify)
@@ -147,6 +149,9 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val pause = itemView.findViewById<ImageButton>(R.id.buttonPause)
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
 
+            val timerName = itemView.findViewById<TextView>(R.id.textViewTimerNameRunning)
+            timerName.text = timer.name
+
             countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
             countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
 
@@ -154,14 +159,12 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
 
             resetButton.setOnClickListener {
-                if (timer.defaultTime > 1000) {
                     playAnimation(timer, willPlay = false)
                     TimerDAO.updateTimerRunning(databaseHelper, timer.id, false)
                     TimerDAO.updateTimerExpiredTime(databaseHelper, timer.id, timer.defaultTime)
                     TimerDAO.putPlayTimeStampNull(databaseHelper, timer.id)
                     refreshTimers()
                     TimerAlarmManager.setupAlarms(context, timers)
-                }
             }
 
             pause.setOnClickListener {
