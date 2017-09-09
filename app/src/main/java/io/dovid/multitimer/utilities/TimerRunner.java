@@ -37,7 +37,6 @@ public class TimerRunner {
                 public void run() {
                     TimerDAO.printTimerTableStatistic(databaseHelper);
                     ArrayList<TimerEntity> timers = TimerDAO.getTimers(databaseHelper);
-                    boolean shouldUpdateTimers = false;
                     for (TimerEntity timer : timers) {
                         if (timer.isRunning()) {
                             Log.d(TAG, "run timer expired time: " + timer.getExpiredTime());
@@ -49,13 +48,10 @@ public class TimerRunner {
                             } else {
                                 TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                             }
-                            shouldUpdateTimers = true;
                         }
                     }
-                    if (shouldUpdateTimers) {
-                        Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
-                        context.sendBroadcast(i);
-                    }
+                    Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
+                    context.sendBroadcast(i);
                 }
             };
 
