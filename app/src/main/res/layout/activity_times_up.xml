@@ -13,15 +13,16 @@
         android:id="@+id/textViewTimesUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/times_up_iv"
         android:layout_centerHorizontal="true"
-        android:text="Pasta time's up!"
-        android:textSize="48sp"
+        android:layout_marginBottom="24dp"
+        android:maxLength="@integer/timesup_length"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
-        android:layout_above="@+id/times_up_iv"
-        android:layout_marginBottom="24dp"
+        android:text="Pasta time's up!"
         android:textAlignment="center"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
 
     <ImageView
         android:layout_marginTop="16dp"

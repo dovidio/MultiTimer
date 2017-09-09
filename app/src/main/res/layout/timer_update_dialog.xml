@@ -12,8 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:textAlignment="center"
-        android:hint="@string/timer_name"/>
+        android:hint="@string/timer_name"
+        android:maxLength="@integer/timer_max_length"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:orientation="horizontal"
