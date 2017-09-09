@@ -14,7 +14,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import io.dovid.multitimer.BuildConfig
@@ -23,8 +22,6 @@ import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
 
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
-
-    // TODO: icona launcher
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
@@ -103,7 +100,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                 startActivity(i)
             }
             R.id.action_about -> {
-                Log.d(TAG, "onOptionsItemSelected: selected about")
+                AboutDialog.getInstance().show(fragmentManager, "AboutDialog")
             }
         }
         return super.onOptionsItemSelected(item)
