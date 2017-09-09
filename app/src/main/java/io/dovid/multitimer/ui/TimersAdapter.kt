@@ -37,11 +37,10 @@ import java.util.*
 internal class TimersAdapter(private val context: Context) : RecyclerView.Adapter<TimersAdapter.TimerViewHolder>() {
 
     private var timers: ArrayList<TimerEntity>
-    private val databaseHelper: DatabaseHelper
+    private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
     private lateinit var colors: IntArray
 
     init {
-        databaseHelper = DatabaseHelper.getInstance(context)
         timers = TimerDAO.getTimers(databaseHelper)
         TimerRunner.run(context)
     }
@@ -82,9 +81,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         holder.bind(position)
     }
 
-    override fun getItemCount(): Int {
-        return timers!!.size
-    }
+    override fun getItemCount(): Int = timers.size
 
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -110,7 +107,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
 
             timerNameTV.text = timer.name
             timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
-            timerNameTV.setOnCreateContextMenuListener { contextMenu, view, contextMenuInfo ->
+            timerNameTV.setOnCreateContextMenuListener { contextMenu, view, _ ->
                 contextMenu.setHeaderTitle(R.string.what_to_do)
                 contextMenu.add(0, view.id, 0, R.string.delete).setOnMenuItemClickListener {
                     deleteTimer(position)
@@ -137,7 +134,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val switchButton = itemView.findViewById<Switch>(R.id.switchNotify)
             switchButton.isChecked = timer.shouldNotify()
 
-            switchButton.setOnCheckedChangeListener { compoundButton, b -> TimerDAO.updateTimerShouldNotify(databaseHelper, timer.id, b) }
+            switchButton.setOnCheckedChangeListener { _, b -> TimerDAO.updateTimerShouldNotify(databaseHelper, timer.id, b) }
         }
 
         private fun setupPlayView(position: Int) {
@@ -192,10 +189,8 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         }
 
         private fun setupPlayColors(timer: TimerEntity) {
-            val pause = itemView.findViewById<ImageButton>(R.id.buttonPause)
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
-
-            countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
+            countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime - 1000, BuildConfig.ITALIANTIME)
             countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
 
             val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
@@ -214,9 +209,9 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
                 itemView.findViewById<View>(R.id.playTimer).alpha = 0f
 
                 animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_left_out) as AnimatorSet
-                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
+                animatorSetCardOut.setTarget(itemView.findViewById(R.id.pauseTimer))
                 animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_left_in) as AnimatorSet
-                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.playTimer))
+                animatorSetCardIn.setTarget(itemView.findViewById(R.id.playTimer))
             } else {
                 setupPauseColors(timer)
 
@@ -224,9 +219,9 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
                 itemView.findViewById<View>(R.id.pauseTimer).alpha = 0f
 
                 animatorSetCardOut = AnimatorInflater.loadAnimator(context, R.animator.flip_right_out) as AnimatorSet
-                animatorSetCardOut.setTarget(itemView.findViewById<View>(R.id.playTimer))
+                animatorSetCardOut.setTarget(itemView.findViewById(R.id.playTimer))
                 animatorSetCardIn = AnimatorInflater.loadAnimator(context, R.animator.flip_right_in) as AnimatorSet
-                animatorSetCardIn.setTarget(itemView.findViewById<View>(R.id.pauseTimer))
+                animatorSetCardIn.setTarget(itemView.findViewById(R.id.pauseTimer))
             }
 
             val allAnimatorSet = AnimatorSet()
@@ -246,14 +241,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         fun onAnimationStopDone()
     }
 
-    inner class MyAnimationListenerAdapter(delegate: onAnimationStopDoneListener) : AnimatorListenerAdapter() {
-
-        var delegate: onAnimationStopDoneListener
-
-        init {
-            this.delegate = delegate
-        }
-
+    inner class MyAnimationListenerAdapter(var delegate: onAnimationStopDoneListener) : AnimatorListenerAdapter() {
         override fun onAnimationEnd(animation: Animator?) {
             delegate.onAnimationStopDone()
         }
