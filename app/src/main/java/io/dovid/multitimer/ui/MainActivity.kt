@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -16,6 +17,8 @@ import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
@@ -62,6 +65,19 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         mRecyclerView?.layoutManager = manager
         mRecyclerView?.adapter = mAdapter
+
+        val googleAd = findViewById(R.id.google_ad) as AdView
+
+
+        val android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID)
+
+        val adRequest = AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice(android_id)
+                .build()
+
+        googleAd.loadAd(adRequest)
 
 
 
