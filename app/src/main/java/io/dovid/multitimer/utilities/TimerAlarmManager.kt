@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteException
 import android.os.Build
+import android.util.Log
 import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
@@ -22,6 +23,8 @@ import java.util.*
 
 object TimerAlarmManager {
 
+    private val TAG = "TIMERALARMMANAGER"
+
     fun setupAlarms(context: Context, timers: ArrayList<TimerEntity>) {
         var minExpiredTime = java.lang.Long.MAX_VALUE
         var nameOfTimer: String? = null
@@ -31,27 +34,7 @@ object TimerAlarmManager {
                 nameOfTimer = timer.name
             }
         }
-
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-
-        if (nameOfTimer != null) {
-
-            val intentAlarm = Intent(context, AlarmReceiver::class.java)
-            intentAlarm.action = BuildConfig.TIME_IS_UP
-            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer)
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-            }
-        } else {
-            val intentAlarm = Intent(context, AlarmReceiver::class.java)
-            intentAlarm.action = BuildConfig.TIME_IS_UP
-            alarmManager.cancel(PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-        }
+        setAlarm(context, nameOfTimer, minExpiredTime)
     }
 
     fun setupAlarms(context: Context, databaseHelper: DatabaseHelper) {
@@ -65,20 +48,7 @@ object TimerAlarmManager {
                 nameOfTimer = timer.name
             }
         }
-
-        if (nameOfTimer != null) {
-
-            val intentAlarm = Intent(context, AlarmReceiver::class.java)
-            intentAlarm.action = BuildConfig.TIME_IS_UP
-            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer)
-
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-            }
-        }
+        setAlarm(context, nameOfTimer, minExpiredTime)
     }
 
     fun setupAlarms(context: Context) {
@@ -98,26 +68,36 @@ object TimerAlarmManager {
                 }
             }
 
-            if (nameOfTimer != null) {
+            setAlarm(context, nameOfTimer, minExpiredTime)
 
-                val intentAlarm = Intent(context, AlarmReceiver::class.java)
-                intentAlarm.action = BuildConfig.TIME_IS_UP
-                intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer)
-
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-                } else {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-                }
-            }
         } catch (e: SQLiteException) {
             throw RuntimeException(e)
         } finally {
             databaseHelper?.close()
+        }
+    }
+
+    private fun setAlarm(context: Context, nameOfTimer: String?, minExpiredTime: Long) {
+
+        Log.d(TAG, "settingAlarm")
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (nameOfTimer != null) {
+            val intentAlarm = Intent(context, AlarmReceiver::class.java)
+            intentAlarm.action = BuildConfig.TIME_IS_UP
+            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
+            }
+        } else {
+            val intentAlarm = Intent(context, AlarmReceiver::class.java)
+            intentAlarm.action = BuildConfig.TIME_IS_UP
+            alarmManager.cancel(PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
         }
     }
 }
