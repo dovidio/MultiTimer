@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 
 def ITALIANTIME = '"HH:mm:ss"';
 def EXTRA_TIMER_NAME = '"TIMER_NAME"';
+def EXTRA_TIMER_ID = '"TIMER_ID"';
 def UPDATE_TIMERS = '"UPDATE_TIMERS"';
 def TIME_IS_UP = '"io.dovid.multitimer.TIME_IS_UP"';
 
@@ -22,6 +23,7 @@ android {
         buildTypes.each {
             it.buildConfigField 'String', 'ITALIANTIME', ITALIANTIME
             it.buildConfigField 'String', 'EXTRA_TIMER_NAME', EXTRA_TIMER_NAME
+            it.buildConfigField 'String', 'EXTRA_TIMER_ID', EXTRA_TIMER_ID
             it.buildConfigField 'String', 'UPDATE_TIMERS', UPDATE_TIMERS
             it.buildConfigField 'String', 'TIME_IS_UP', TIME_IS_UP
         }
