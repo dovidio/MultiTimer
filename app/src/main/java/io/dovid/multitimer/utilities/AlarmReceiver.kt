@@ -15,9 +15,11 @@ class AlarmReceiver : BroadcastReceiver() {
         Log.d(TAG, "onReceive called");
 
         val timerName = intent.extras.getString(BuildConfig.EXTRA_TIMER_NAME)
+        val timerId = intent.extras.getInt(BuildConfig.EXTRA_TIMER_ID)
 
         val newIntent = Intent(context, TimesUpActivity::class.java)
         newIntent.putExtra(BuildConfig.EXTRA_TIMER_NAME, timerName)
+        newIntent.putExtra(BuildConfig.EXTRA_TIMER_ID, timerId)
         newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(newIntent)
     }
