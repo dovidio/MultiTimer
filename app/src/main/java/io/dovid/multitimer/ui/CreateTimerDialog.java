@@ -72,13 +72,13 @@ public class CreateTimerDialog extends DialogFragment {
                     public void onClick(View view) {
                         String name = nameET.getText().toString().trim();
                         if (name.equalsIgnoreCase("")) {
-                            nameET.setError("The name cannot be empty");
+                            nameET.setError(getString(R.string.name_cannot_be_empty));
                         } else if (hoursET.getText().toString().trim().equalsIgnoreCase("")) {
-                            hoursET.setError("Hours cannot be empty");
+                            hoursET.setError(getString(R.string.hours_cannot_be_empty));
                         } else if (minutesET.getText().toString().trim().equalsIgnoreCase("")) {
-                            minutesET.setError("Minutes cannot be empty");
+                            minutesET.setError(getString(R.string.minutes_cannot_be_empty));
                         } else if (secondsET.getText().toString().trim().equalsIgnoreCase("")) {
-                            secondsET.setError("Seconds cannot be empty");
+                            secondsET.setError(getString(R.string.seconds_cannot_be_empty));
                         } else {
                             int hours = Integer.parseInt(hoursET.getText().toString().trim());
                             int minutes = Integer.parseInt(minutesET.getText().toString().trim());
@@ -87,7 +87,7 @@ public class CreateTimerDialog extends DialogFragment {
                             long milliseconds = Converter.hmsToMilliseconds(hours, minutes, seconds);
 
                             if (milliseconds == 0) {
-                                secondsET.setError("Timer must at least be one second long");
+                                secondsET.setError(getString(R.string.timer_must_be_one_second_length));
                             } else {
                                 mListener.onCreateTimer(name, milliseconds, CreateTimerDialog.this);
                                 dialog.dismiss();
