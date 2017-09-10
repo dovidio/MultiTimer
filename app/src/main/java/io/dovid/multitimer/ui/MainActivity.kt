@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import io.dovid.multitimer.BuildConfig
@@ -30,8 +31,6 @@ import tourguide.tourguide.TourGuide
 
 
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
-
-    // TODO: aggiungere pubblicità versione free
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
@@ -66,21 +65,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         mRecyclerView?.layoutManager = manager
         mRecyclerView?.adapter = mAdapter
 
-        val googleAd = findViewById(R.id.google_ad) as AdView
-
-
-        val android_id = Settings.Secure.getString(this.getContentResolver(),
-                Settings.Secure.ANDROID_ID)
-
-        val adRequest = AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice(android_id)
-                .build()
-
-        googleAd.loadAd(adRequest)
-
-
-
         fab = findViewById(R.id.fab) as FloatingActionButton
         fab?.setOnClickListener {
             mTourGuideHandler?.cleanUp()
@@ -103,18 +87,11 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         }
 
         if (!sharedPreferences.contains("tutorial1")) {
-            mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
-                    .setPointer(Pointer().setGravity(Gravity.TOP))
-                    .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
-                            setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
-                    .setOverlay(Overlay().setOnClickListener {
-                        mTourGuideHandler?.cleanUp()
-                        sharedPreferences.edit().putBoolean("tutorial1", true).apply()
-                    })
-                    .playOn(fab)
+            loadTutorial(step = 0, target = fab)
         }
 
         setupColors()
+        loadAd()
     }
 
     override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
@@ -124,21 +101,9 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         if (!sharedPreferences.contains("tutorial2")) {
             mRecyclerView?.smoothScrollToPosition((mAdapter?.itemCount ?: 1) - 1)
             Handler().postDelayed({
-                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.VerticalDownward)
-                        .setToolTip(ToolTip()
-                                .setDescription(getString(R.string.long_press_timer)).setGravity(Gravity.CENTER).setOnClickListener {
-                            mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
-                        })
-                        .setOverlay(Overlay().setOnClickListener {
-                            mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
-                        }.setStyle(Overlay.Style.Rectangle))
-                        .playOn(mRecyclerView?.getChildAt(0))
-
+                loadTutorial(step = 1, target = mRecyclerView?.getChildAt(0))
             }, 1000)
         }
-
         Handler().postDelayed({
             mTourGuideHandler?.cleanUp()
             sharedPreferences.edit().putBoolean("tutorial2", true).apply()
@@ -186,15 +151,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
             }
             R.id.action_play_tutorial -> {
                 sharedPreferences.edit().remove("tutorial1").remove("tutorial2").commit()
-                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
-                        .setPointer(Pointer().setGravity(Gravity.TOP))
-                        .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
-                                setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
-                        .setOverlay(Overlay().setOnClickListener {
-                            mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial1", true).apply()
-                        })
-                        .playOn(fab)
+                loadTutorial(step = 0, target = fab)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -205,7 +162,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
             menuInflater.inflate(R.menu.menu_main_paid, menu)
         } else {
             menuInflater.inflate(R.menu.menu_main_free, menu)
-
         }
         return true
     }
@@ -250,6 +206,53 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                     R.color.material_card8,
                     R.color.material_card9,
                     R.color.material_card10)
+        }
+    }
+
+    private fun loadAd() {
+        val googleAd = findViewById(R.id.google_ad) as AdView
+
+        if (BuildConfig.PAID) {
+            googleAd.visibility = View.GONE
+        } else {
+            val android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
+
+            val adRequest = AdRequest.Builder()
+                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                    .addTestDevice(android_id)
+                    .build()
+
+            googleAd.loadAd(adRequest)
+        }
+    }
+
+    private fun loadTutorial(step: Int, target: View?) {
+        if (target != null) {
+            if (step == 0) {
+                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
+                        .setPointer(Pointer().setGravity(Gravity.TOP))
+                        .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
+                                setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
+                        .setOverlay(Overlay().setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+                        })
+                        .playOn(target)
+            } else if (step == 1) {
+                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.VerticalDownward)
+                        .setToolTip(ToolTip()
+                                .setDescription(getString(R.string.long_press_timer)).setGravity(Gravity.CENTER).setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+                        })
+                        .setOverlay(Overlay().setOnClickListener {
+                            mTourGuideHandler?.cleanUp()
+                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+                        }.setStyle(Overlay.Style.Rectangle))
+                        .playOn(target)
+            } else {
+                throw RuntimeException("Do not have a tutorial step number equals to " + step)
+            }
         }
     }
 
