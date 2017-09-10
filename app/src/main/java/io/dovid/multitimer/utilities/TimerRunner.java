@@ -23,10 +23,19 @@ import io.dovid.multitimer.model.TimerEntity;
 
 public class TimerRunner {
 
-    private static boolean isRunning = false;
+    private boolean isRunning = false;
     private static final String TAG = "TIMERRUNNER";
+    private static TimerRunner sTimerRunner;
 
-    public static void run(final Context context) {
+
+    public synchronized static TimerRunner getInstance() {
+        if (sTimerRunner == null) {
+            sTimerRunner = new TimerRunner();
+        }
+        return sTimerRunner;
+    }
+
+    public void run(final Context context) {
         final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
         if (!isRunning) {
             isRunning = true;
@@ -40,14 +49,7 @@ public class TimerRunner {
                     for (TimerEntity timer : timers) {
                         if (timer.isRunning()) {
                             Log.d(TAG, "run timer expired time: " + timer.getExpiredTime());
-                            if (timer.getExpiredTime() <= 0) {
-                                // set isRunning to no
-                                TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), false);
-                                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
-                                TimerAlarmManager.INSTANCE.setupAlarms(context, databaseHelper);
-                            } else {
-                                TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
-                            }
+                            TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                         }
                     }
                     Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
