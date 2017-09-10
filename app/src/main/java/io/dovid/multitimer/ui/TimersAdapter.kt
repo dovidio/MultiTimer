@@ -86,7 +86,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
     inner class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(position: Int) {
-            if (!timers[position].isAnimating || timers[position].defaultTime >= 0) {
+            if (!timers[position].isAnimating) {
                 if (timers[position].isRunning || timers[position].defaultTime != timers[position].expiredTime) {
                     setupPlayView(position)
                 } else {
@@ -152,7 +152,12 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             val timerName = itemView.findViewById<TextView>(R.id.textViewTimerNameRunning)
             timerName.text = timer.name
 
-            countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
+            if (timer.expiredTime >= 0) {
+                countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime, BuildConfig.ITALIANTIME)
+            } else {
+                countdownRunning.text = "00:00:00"
+            }
+
             countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
 
             val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
