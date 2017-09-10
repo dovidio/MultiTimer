@@ -63,18 +63,18 @@ object TimerAlarmManager {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (timerName != null && timerId != null) {
-            Log.d(TAG, "settingAlarm")
             val intentAlarm = Intent(context, AlarmReceiver::class.java)
             intentAlarm.action = BuildConfig.TIME_IS_UP
             intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, timerName)
             intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_ID, timerId)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
+                Log.d(TAG, "settingAlarm disrupting doze mode")
+                val pi = PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
+                alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(Date().time + minExpiredTime, pi), pi)
             } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
+                Log.d(TAG, "settingAlarm simply")
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
             }
         } else {
             Log.d(TAG, "cancelling alarm")
