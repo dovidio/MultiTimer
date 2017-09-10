@@ -8,6 +8,7 @@ import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
 
     init {
         timers = TimerDAO.getTimers(databaseHelper)
-        TimerRunner.run(context)
+        TimerRunner.getInstance().run(context)
     }
 
     fun setColors(colors: IntArray) {
@@ -92,6 +93,8 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
                 } else {
                     setupPauseView(position)
                 }
+            } else {
+                Log.d(TAG, "not binding")
             }
         }
 
@@ -239,8 +242,9 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             allAnimatorSet.duration = 500
             allAnimatorSet.addListener(MyAnimationListenerAdapter(object : onAnimationStopDoneListener {
                 override fun onAnimationStopDone() {
-                    timer.isAnimating = false
+                    Log.d(TAG, "stopping animation")
                     TimerDAO.updateIsAnimating(databaseHelper, timer.id, false)
+                    refreshTimers()
                 }
             }))
             allAnimatorSet.start()
