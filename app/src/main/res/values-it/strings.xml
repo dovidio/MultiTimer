@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MultiTimer</string>
+    <string name="Setup_your_timer">Setta il tuo timer</string>
+    <string name="about_app">Sviluppato da Umberto D\'Ovidio.         Dai un\'occhiata le altre ad altre app sviluppate da me e visita il mio sito personale http://dovid.io.</string>
+    <string name="back_to_timers">torna ai timer</string>
+    <string name="choose_among_themes">Scegli tra tre bellissimi temi e personalizza la tua esperienza!</string>
+    <string name="choose_ringtone">Scegli la suoneria!</string>
+    <string name="click_on_this_button">Clicca su questo pulsante per aggiungere un timer</string>
+    <string name="content_description_play_button">Un bottone usato per far partire un timer</string>
+    <string name="create_timer">Crea un timer</string>
+    <string name="delete">cancella</string>
+    <string name="enjoy_using_multitimer">Ti piace usare MultiTimer?</string>
+    <string name="go_pro"></string>
+    <string name="google_play_store">Portami al Google Play Store</string>
+    <string name="if_you_enjoy_using">Se ti piace usare</string>
+    <string name="long_press_timer" translatable="false">Tieni premuto questo timer se vuoi cancellarlo o modificarlo. Se vuoi farlo partire, schiaccia il pulsante play</string>
+    <string name="maximum_number_timers_title">Numero massimo di timer raggiunto</string>
+    <string name="need_more_timers">Hai bisogno di più timer?</string>
+    <string name="notify_me" translatable="false">avvertimi</string>
+    <string name="our_pro_app">Con la nostra app pro potrai sbarazzarti della pubblicità!</string>
+    <string name="play_initial_tutorial_again">Riproduci il tutorial iniziale</string>
+    <string name="please_take_a_moment_to_rate_it">\", per favore, prenditi un momento per valutarla. Grazie per il tuo supporto!\"</string>
+    <string name="pref_header_general">Generali</string>
+    <string name="pref_header_notifications">Notifiche</string>
+    <string name="pref_ringtone_silent">Silenzioso</string>
+    <string name="pref_title_display_name">Mostra nome</string>
+    <string name="pref_title_new_message_notifications"></string>
+    <string name="pref_title_ringtone">Suoneria</string>
+    <string name="pref_title_social_recommendations"></string>
+    <string name="pref_title_vibrate">Vibrazione</string>
+    <string name="ready_for_a_new_look">Pronto per un nuovo look?</string>
+    <string name="reset"></string>
+    <string name="should_delete_timer_first"></string>
+    <string name="sick_of_default_ringtone">Stanco della suoneria di default? Potrai scegliere la tua suoneria preferita nella nostra app pro!</string>
+    <string name="time_up">è scaduto!</string>
+    <string name="timer_name">nome del timer</string>
+    <string name="timers_color_theme">Tema</string>
+    <string name="tired_of_ads">Stanco della pubblicità! Passa a MultiTimer pro!</string>
+    <string name="title_activity_settings" translatable="false">Preferenze</string>
+    <string name="update">modifica</string>
+    <string name="update_your_timer">modifica il tuo timer</string>
+    <string name="welcome">Benvenuto!</string>
+    <string name="what_to_do">Cosa vuoi fare?</string>
+    <string name="you_can_get_up_to">Passa a pro e potrai settare fino a 10 timer!</string>
+</resources>
