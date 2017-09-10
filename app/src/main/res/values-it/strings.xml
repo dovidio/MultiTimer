@@ -29,14 +29,13 @@
     <string name="pref_title_social_recommendations"></string>
     <string name="pref_title_vibrate">Vibrazione</string>
     <string name="ready_for_a_new_look">Pronto per un nuovo look?</string>
-    <string name="reset"></string>
     <string name="should_delete_timer_first">Cancella un timer prima di aggiungerne uno</string>
     <string name="sick_of_default_ringtone">Stanco della suoneria di default? Potrai scegliere la tua suoneria preferita nella nostra app pro!</string>
     <string name="time_up">è scaduto!</string>
     <string name="timer_name">nome del timer</string>
     <string name="timers_color_theme">Tema</string>
     <string name="tired_of_ads">Stanco della pubblicità! Passa a MultiTimer pro!</string>
-    <string name="title_activity_settings" translatable="false">Preferenze</string>
+    <string name="title_activity_settings">Preferenze</string>
     <string name="update">modifica</string>
     <string name="update_your_timer">modifica il tuo timer</string>
     <string name="welcome">Benvenuto!</string>
@@ -47,4 +46,5 @@
     <string name="seconds_cannot_be_empty">I secondi non possono essere vuoti</string>
     <string name="you_can_get_up_to">Passa a pro e potrai usare fino a 10 timer!</string>
     <string name="name_cannot_be_empty">Il nome non può essere vuoto</string>
+    <string name="action_settings">Preferenze</string>
 </resources>
