@@ -24,6 +24,7 @@ import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
+import io.dovid.multitimer.utilities.AppRater
 import tourguide.tourguide.Overlay
 import tourguide.tourguide.Pointer
 import tourguide.tourguide.ToolTip
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         setupColors()
         loadAd()
+        AppRater.app_launched(this)
     }
 
     override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
