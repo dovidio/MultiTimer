@@ -35,7 +35,7 @@ public class TimerRunner {
             TimerTask task = new TimerTask() {
                 @Override
                 public void run() {
-                    TimerDAO.printTimerTableStatistic(databaseHelper);
+                    // TimerDAO.printTimerTableStatistic(databaseHelper);
                     ArrayList<TimerEntity> timers = TimerDAO.getTimers(databaseHelper);
                     for (TimerEntity timer : timers) {
                         if (timer.isRunning()) {
