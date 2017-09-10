@@ -26,29 +26,12 @@ object TimerAlarmManager {
     private val TAG = "TIMERALARMMANAGER"
 
     fun setupAlarms(context: Context, timers: ArrayList<TimerEntity>) {
-        var minExpiredTime = java.lang.Long.MAX_VALUE
-        var nameOfTimer: String? = null
-        for (timer in timers) {
-            if (timer.isRunning && timer.expiredTime < minExpiredTime && timer.shouldNotify()) {
-                minExpiredTime = timer.expiredTime
-                nameOfTimer = timer.name
-            }
-        }
-        setAlarm(context, nameOfTimer, minExpiredTime)
+        setAlarm(context, timers)
     }
 
     fun setupAlarms(context: Context, databaseHelper: DatabaseHelper) {
         val timers = TimerDAO.getTimers(databaseHelper)
-
-        var minExpiredTime = java.lang.Long.MAX_VALUE
-        var nameOfTimer: String? = null
-        for (timer in timers) {
-            if (timer.isRunning && timer.expiredTime < minExpiredTime && timer.shouldNotify()) {
-                minExpiredTime = timer.expiredTime
-                nameOfTimer = timer.name
-            }
-        }
-        setAlarm(context, nameOfTimer, minExpiredTime)
+        setAlarm(context, timers)
     }
 
     fun setupAlarms(context: Context) {
@@ -56,20 +39,8 @@ object TimerAlarmManager {
 
         try {
             databaseHelper = DatabaseHelper.getInstance(context)
-
             val timers = TimerDAO.getTimers(databaseHelper)
-
-            var minExpiredTime = java.lang.Long.MAX_VALUE
-            var nameOfTimer: String? = null
-            for (timer in timers) {
-                if (timer.isRunning && timer.expiredTime < minExpiredTime && timer.shouldNotify()) {
-                    minExpiredTime = timer.expiredTime
-                    nameOfTimer = timer.name
-                }
-            }
-
-            setAlarm(context, nameOfTimer, minExpiredTime)
-
+            setAlarm(context, timers)
         } catch (e: SQLiteException) {
             throw RuntimeException(e)
         } finally {
@@ -77,15 +48,26 @@ object TimerAlarmManager {
         }
     }
 
-    private fun setAlarm(context: Context, nameOfTimer: String?, minExpiredTime: Long) {
+    private fun setAlarm(context: Context, timers: ArrayList<TimerEntity>) {
 
-        Log.d(TAG, "settingAlarm")
+        var minExpiredTime = java.lang.Long.MAX_VALUE
+        var timerName: String? = null
+        var timerId: Int? = null
+        for (timer in timers) {
+            if (timer.isRunning && timer.expiredTime < minExpiredTime && timer.shouldNotify()) {
+                minExpiredTime = timer.expiredTime
+                timerName = timer.name
+                timerId = timer.id
+            }
+        }
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (nameOfTimer != null) {
+        if (timerName != null && timerId != null) {
+            Log.d(TAG, "settingAlarm")
             val intentAlarm = Intent(context, AlarmReceiver::class.java)
             intentAlarm.action = BuildConfig.TIME_IS_UP
-            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, nameOfTimer)
+            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_NAME, timerName)
+            intentAlarm.putExtra(BuildConfig.EXTRA_TIMER_ID, timerId)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
@@ -95,6 +77,7 @@ object TimerAlarmManager {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, Date().time + minExpiredTime, PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
             }
         } else {
+            Log.d(TAG, "cancelling alarm")
             val intentAlarm = Intent(context, AlarmReceiver::class.java)
             intentAlarm.action = BuildConfig.TIME_IS_UP
             alarmManager.cancel(PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT))
