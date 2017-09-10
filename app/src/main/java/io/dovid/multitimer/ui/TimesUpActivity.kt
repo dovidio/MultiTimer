@@ -21,6 +21,9 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
+import io.dovid.multitimer.database.DatabaseHelper
+import io.dovid.multitimer.model.TimerDAO
+import io.dovid.multitimer.utilities.TimerAlarmManager
 
 
 class TimesUpActivity : AppCompatActivity() {
@@ -35,15 +38,19 @@ class TimesUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // wake lock
         val win = window
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
         win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
-
-
         setContentView(R.layout.activity_times_up)
 
+        // get timer info
         val intent = intent
         val timerName = intent.extras.getString(BuildConfig.EXTRA_TIMER_NAME)
+        val timerId = intent.extras.getInt(BuildConfig.EXTRA_TIMER_ID)
+
+        // stop this timer and setup other alarms
+        updateExpiredTimer(timerId)
 
         val timesUpTV = findViewById(R.id.textViewTimesUp) as TextView
         timesUpTV.text = timerName + " " + getString(R.string.time_up)
@@ -51,6 +58,7 @@ class TimesUpActivity : AppCompatActivity() {
         val backToTimers = findViewById(R.id.times_up_back_to_timers_button) as Button
 
         backToTimers.setOnClickListener {
+            TimerAlarmManager.setupAlarms(this)
             val i = Intent(this@TimesUpActivity, MainActivity::class.java)
             startActivity(i)
             finish()
@@ -132,6 +140,18 @@ class TimesUpActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop: called")
         super.onStop()
+    }
+
+    private fun updateExpiredTimer(timerId: Int) {
+        var databaseHelper: DatabaseHelper? = null
+        try {
+            databaseHelper = DatabaseHelper.getInstance(this)
+            val defaultTime = TimerDAO.getProperty(databaseHelper, "DEFAULT_TIME", timerId) as Long
+            TimerDAO.updateTimerRunning(databaseHelper, timerId, false)
+            TimerDAO.updateTimerExpiredTime(databaseHelper, timerId, defaultTime)
+        } finally {
+            databaseHelper?.close()
+        }
     }
 
     companion object {
