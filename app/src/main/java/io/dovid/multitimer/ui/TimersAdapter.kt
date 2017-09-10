@@ -164,6 +164,7 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
             countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
 
             val resetButton = itemView.findViewById<Button>(R.id.buttonReset)
+
             resetButton.setTextColor(ContextCompat.getColor(context, colors[timer.id % colors.size]))
 
             resetButton.setOnClickListener {
@@ -202,6 +203,9 @@ internal class TimersAdapter(private val context: Context) : RecyclerView.Adapte
         }
 
         private fun setupPlayColors(timer: TimerEntity) {
+            val timerName = itemView.findViewById<TextView>(R.id.textViewTimerNameRunning)
+            timerName.text = timer.name
+
             val countdownRunning = itemView.findViewById<TextView>(R.id.editTextCountdownRunning)
             countdownRunning.text = DurationFormatUtils.formatDuration(timer.expiredTime - 1000, BuildConfig.ITALIANTIME)
             countdownRunning.setBackgroundResource(colors[timer.id % colors.size])
