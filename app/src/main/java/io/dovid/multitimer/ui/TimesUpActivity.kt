@@ -51,6 +51,7 @@ class TimesUpActivity : AppCompatActivity() {
 
         // stop this timer and setup other alarms
         updateExpiredTimer(timerId)
+        TimerAlarmManager.setupAlarms(this)
 
         val timesUpTV = findViewById(R.id.textViewTimesUp) as TextView
         timesUpTV.text = timerName + " " + getString(R.string.time_up)
@@ -58,7 +59,6 @@ class TimesUpActivity : AppCompatActivity() {
         val backToTimers = findViewById(R.id.times_up_back_to_timers_button) as Button
 
         backToTimers.setOnClickListener {
-            TimerAlarmManager.setupAlarms(this)
             val i = Intent(this@TimesUpActivity, MainActivity::class.java)
             startActivity(i)
             finish()
