@@ -2,8 +2,7 @@
 <resources>
     <string name="app_name">MultiTimer</string>
     <string name="Setup_your_timer">Setta il tuo timer</string>
-    <string name="about_app">Sviluppato da Umberto D\'Ovidio.         Dai un\'occhiata le altre ad altre app sviluppate da me e visita il mio sito personale http://dovid.io.</string>
-    <string name="back_to_timers">torna ai timer</string>
+    <string name="about_app">Sviluppato da Umberto D\'Ovidio.         Dai un\'occhiata ad altre app sviluppate da me e visita il mio sito personale http://dovid.io.</string>
     <string name="choose_among_themes">Scegli tra tre bellissimi temi e personalizza la tua esperienza!</string>
     <string name="choose_ringtone">Scegli la suoneria!</string>
     <string name="click_on_this_button">Clicca su questo pulsante per aggiungere un timer</string>
@@ -31,7 +30,7 @@
     <string name="pref_title_vibrate">Vibrazione</string>
     <string name="ready_for_a_new_look">Pronto per un nuovo look?</string>
     <string name="reset"></string>
-    <string name="should_delete_timer_first"></string>
+    <string name="should_delete_timer_first">Cancella un timer prima di aggiungerne uno</string>
     <string name="sick_of_default_ringtone">Stanco della suoneria di default? Potrai scegliere la tua suoneria preferita nella nostra app pro!</string>
     <string name="time_up">è scaduto!</string>
     <string name="timer_name">nome del timer</string>
@@ -42,5 +41,10 @@
     <string name="update_your_timer">modifica il tuo timer</string>
     <string name="welcome">Benvenuto!</string>
     <string name="what_to_do">Cosa vuoi fare?</string>
-    <string name="you_can_get_up_to">Passa a pro e potrai settare fino a 10 timer!</string>
+    <string name="minutes_cannot_be_empty">I minuti non possono essere vuoti</string>
+    <string name="hours_cannot_be_empty">Le ore non possono essere vuote</string>
+    <string name="timer_must_be_one_second_length">I timer devono durare almeno un secondo</string>
+    <string name="seconds_cannot_be_empty">I secondi non possono essere vuoti</string>
+    <string name="you_can_get_up_to">Passa a pro e potrai usare fino a 10 timer!</string>
+    <string name="name_cannot_be_empty">Il nome non può essere vuoto</string>
 </resources>

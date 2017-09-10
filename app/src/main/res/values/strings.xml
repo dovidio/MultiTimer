@@ -7,7 +7,7 @@
     <string name="minus" translatable="false">-</string>
     <string name="zero_time" translatable="false">00:00:00</string>
     <string name="content_description_play_button">A button used to start the timer</string>
-    <string name="notify_me" translatable="false">notify me</string>
+    <string name="notify_me">notify me</string>
     <string name="double_zero" translatable="false">00</string>
     <string name="colon" translatable="false">:</string>
     <string name="hours_placeholder" translatable="false">hh</string>
@@ -20,7 +20,7 @@
     <string name="should_delete_timer_first">If you want to create a new timer, you should delete one first</string>
     <string name="create_timer">Create a Timer</string>
     <string name="timer_name">timer name</string>
-    <string name="back_to_timers">back to timers</string>
+    <string name="stop_timer" translatable="false">stop timer</string>
     <string name="time_up">time\'s up!</string>
     <string name="update">update</string>
     <string name="update_your_timer">update your timer</string>
@@ -28,7 +28,7 @@
     <string name="delete">delete</string>
     <string name="title_activity_main2" translatable="false">Main2Activity</string>
     <string name="action_about" translatable="false">About</string>
-    <string name="title_activity_settings" translatable="false">Settings</string>
+    <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
 
@@ -133,6 +133,11 @@
     <string name="enjoy_using_multitimer">Enjoy using multitimer?</string>
     <string name="if_you_enjoy_using">If you enjoy using</string>
     <string name="please_take_a_moment_to_rate_it">, please take a moment to rate it. Thanks for your support!</string>
+    <string name="name_cannot_be_empty">The name cannot be empty</string>
+    <string name="hours_cannot_be_empty">Hours cannot be empty</string>
+    <string name="minutes_cannot_be_empty">Minutes cannot be empty</string>
+    <string name="seconds_cannot_be_empty">Seconds cannot be empty</string>
+    <string name="timer_must_be_one_second_length">Timer must at least be one second long</string>
     <!-- -
         This is an ad unit ID for an interstitial test ad. Replace with your own interstitial ad unit id.
         For more information, see https://support.google.com/admob/answer/3052638

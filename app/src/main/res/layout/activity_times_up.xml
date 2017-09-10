@@ -55,5 +55,5 @@
         android:background="#00000000"
         android:textColor="@color/material_card4"
         android:layout_marginBottom="24dp"
-        android:text="@string/back_to_timers" />
+        android:text="@string/stop_timer" />
 </RelativeLayout>
