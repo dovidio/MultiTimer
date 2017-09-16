@@ -60,5 +60,4 @@ public class TimerRunner {
             timer.scheduleAtFixedRate(task, 0, 1000);
         }
     }
-
 }
