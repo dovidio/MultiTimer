@@ -135,6 +135,4 @@ class TimesUpActivity : AppCompatActivity() {
 
         private val TAG = "TIMESUPACTIVITY"
     }
-
-
 }
