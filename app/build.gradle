@@ -62,7 +62,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
     compile 'com.android.support:cardview-v7:26.+'
-    compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
+    compile 'commons-lang:commons-lang:2.6'
     compile 'com.android.support:support-v4:26.+'
     compile 'com.google.android.gms:play-services-ads:11.0.4'
     testCompile 'junit:junit:4.12'
