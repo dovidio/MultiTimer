@@ -23,7 +23,7 @@ public class AppRater {
     private final static String APP_PNAME = io.dovid.multitimer.BuildConfig.PAID ? "io.dovid.multitimer.paid" : "io.dovid.multitimer.free";
 
     private final static int DAYS_UNTIL_PROMPT = 3;
-    private final static int LAUNCHES_UNTIL_PROMPT = 3;//Min number of launches
+    private final static int LAUNCHES_UNTIL_PROMPT = 3; //Min number of launches
 
     public static void app_launched(Context mContext) {
         SharedPreferences prefs = mContext.getSharedPreferences("apprater", 0);
