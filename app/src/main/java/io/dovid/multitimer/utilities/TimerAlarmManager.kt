@@ -43,8 +43,6 @@ object TimerAlarmManager {
             setAlarm(context, timers)
         } catch (e: SQLiteException) {
             throw RuntimeException(e)
-        } finally {
-            databaseHelper?.close()
         }
     }
 
