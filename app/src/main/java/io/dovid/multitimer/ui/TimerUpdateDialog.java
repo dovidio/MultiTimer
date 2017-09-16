@@ -109,13 +109,13 @@ public class TimerUpdateDialog extends DialogFragment {
                     public void onClick(View view) {
                         String name = nameET.getText().toString().trim();
                         if (name.equalsIgnoreCase("")) {
-                            nameET.setError("The name cannot be empty");
+                            nameET.setError(getActivity().getString(R.string.name_cannot_be_empty));
                         } else if (hoursET.getText().toString().trim().equalsIgnoreCase("")) {
-                            hoursET.setError("Hours cannot be empty");
+                            hoursET.setError(getActivity().getString(R.string.hours_cannot_be_empty));
                         } else if (minutesET.getText().toString().trim().equalsIgnoreCase("")) {
-                            minutesET.setError("Minutes cannot be empty");
+                            minutesET.setError(getActivity().getString(R.string.minutes_cannot_be_empty));
                         } else if (secondsET.getText().toString().trim().equalsIgnoreCase("")) {
-                            secondsET.setError("Seconds cannot be empty");
+                            secondsET.setError(getActivity().getString(R.string.name_cannot_be_empty));
                         } else {
                             int hours = Integer.parseInt(hoursET.getText().toString().trim());
                             int minutes = Integer.parseInt(minutesET.getText().toString().trim());
