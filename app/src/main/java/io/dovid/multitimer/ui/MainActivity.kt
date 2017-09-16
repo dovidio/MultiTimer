@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -46,11 +47,13 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     private var receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             mAdapter?.refreshTimers()
+            Log.d(TAG, "refreshing timers")
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate timers count: " + mAdapter?.itemCount)
         setContentView(R.layout.activity_main)
         val toolbar = findViewById(R.id.toolbar) as Toolbar
 
@@ -60,13 +63,9 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         databaseHelper = DatabaseHelper.getInstance(this)
 
-        mRecyclerView = findViewById(R.id.recyclerView) as RecyclerView
-        mAdapter = TimersAdapter(this)
+        createRecyclerView()
 
-        val manager = LinearLayoutManager(this)
 
-        mRecyclerView?.layoutManager = manager
-        mRecyclerView?.adapter = mAdapter
 
         fab = findViewById(R.id.fab) as FloatingActionButton
         fab?.setOnClickListener {
@@ -77,11 +76,11 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                 val createDialog = CreateTimerDialog.getInstance()
                 createDialog.show(fragmentManager, "createTimer")
             } else {
-                val builder = AlertDialog.Builder(this@MainActivity).setTitle("Maximum number of timers achieved")
+                val builder = AlertDialog.Builder(this@MainActivity).setTitle(getString(R.string.main_max_number_of_timers))
                 if (!BuildConfig.PAID) {
-                    builder.setMessage("Upgrade to the pro version to get up to 10 timers")
+                    builder.setMessage(getString(R.string.main_upgrade_to_paid))
                 } else {
-                    builder.setMessage("Already achieved maximum number of timers. You can delete timers by long pressing on them and choosing delete.")
+                    builder.setMessage(getString(R.string.main_delete_before_adding_timer))
                 }
                 builder.setPositiveButton(getString(android.R.string.ok), DialogInterface.OnClickListener { dialogInterface, _ ->
                     dialogInterface.dismiss()
@@ -96,7 +95,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         setupColors()
         loadAd()
         AppRater.app_launched(this)
-        RingtonePlayer.stopPlaying()
     }
 
     override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
@@ -124,8 +122,17 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume timer count: " + mAdapter?.itemCount)
         setupColors()
+
+        if (mRecyclerView == null) {
+            Log.d(TAG, "Recycler view is null")
+        } else if (mRecyclerView?.layoutManager == null) {
+            Log.d(TAG, "Recycler view manager is empty")
+        }
+
         mAdapter?.setColors(colors)
+        mAdapter?.setContext(this)
         registerReceiver(receiver, IntentFilter(BuildConfig.UPDATE_TIMERS))
         RingtonePlayer.stopPlaying()
         VibrationPlayer.stopVibrating()
@@ -134,13 +141,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     override fun onStop() {
         super.onStop()
         unregisterReceiver(receiver)
-    }
-
-    override fun onBackPressed() {
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_HOME)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP//***Change Here***
-        startActivity(intent)
         finish()
     }
 
@@ -261,6 +261,16 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                 throw RuntimeException("Do not have a tutorial step number equals to " + step)
             }
         }
+    }
+
+    private fun createRecyclerView() {
+        mRecyclerView = findViewById(R.id.recyclerView) as RecyclerView
+        mAdapter = TimersAdapter(this)
+
+        val manager = LinearLayoutManager(this)
+
+        mRecyclerView?.layoutManager = manager
+        mRecyclerView?.adapter = mAdapter
     }
 
     companion object {
