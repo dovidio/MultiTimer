@@ -10,13 +10,12 @@
     <string name="create_timer">Crea un timer</string>
     <string name="delete">cancella</string>
     <string name="enjoy_using_multitimer">Ti piace usare MultiTimer?</string>
-    <string name="go_pro"></string>
     <string name="google_play_store">Portami al Google Play Store</string>
     <string name="if_you_enjoy_using">Se ti piace usare</string>
-    <string name="long_press_timer" translatable="false">Tieni premuto questo timer se vuoi cancellarlo o modificarlo. Se vuoi farlo partire, schiaccia il pulsante play</string>
+    <string name="long_press_timer">Tieni premuto questo timer se vuoi cancellarlo o modificarlo. Se vuoi farlo partire, schiaccia il pulsante play</string>
     <string name="maximum_number_timers_title">Numero massimo di timer raggiunto</string>
     <string name="need_more_timers">Hai bisogno di più timer?</string>
-    <string name="notify_me" translatable="false">avvertimi</string>
+    <string name="notify_me">avvertimi</string>
     <string name="our_pro_app">Con la nostra app pro potrai sbarazzarti della pubblicità!</string>
     <string name="play_initial_tutorial_again">Riproduci il tutorial iniziale</string>
     <string name="please_take_a_moment_to_rate_it">per favore, prenditi un momento per valutarla. Grazie per il tuo supporto!</string>
@@ -24,9 +23,7 @@
     <string name="pref_header_notifications">Notifiche</string>
     <string name="pref_ringtone_silent">Silenzioso</string>
     <string name="pref_title_display_name">Mostra nome</string>
-    <string name="pref_title_new_message_notifications"></string>
     <string name="pref_title_ringtone">Suoneria</string>
-    <string name="pref_title_social_recommendations"></string>
     <string name="pref_title_vibrate">Vibrazione</string>
     <string name="ready_for_a_new_look">Pronto per un nuovo look?</string>
     <string name="should_delete_timer_first">Cancella un timer prima di aggiungerne uno</string>
@@ -50,4 +47,7 @@
     <string name="rater_later">Più tardi</string>
     <string name="rater_no_thanks">No, grazie</string>
     <string name="rater_rate_now">Valuta</string>
+    <string name="main_delete_before_adding_timer">Hai già raggiunto il massimo  numero possibile di timer. Puoi cancellare i timer tenendo premuto il dito e selezionando l\'operazione elimina.</string>
+    <string name="main_max_number_of_timers">Numero massimo di timer raggiunto</string>
+    <string name="main_upgrade_to_paid">Passa alla versione pro per avere fino a 10 timers</string>
 </resources>

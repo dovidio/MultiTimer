@@ -32,29 +32,17 @@
 
     <string name="pref_header_general">General</string>
 
-    <string-array name="pref_example_list_titles">
+    <string-array name="pref_example_list_titles" translatable="false">
         <item>Material</item>
         <item>Dark</item>
         <item>Bakery</item>
     </string-array>
-    <string-array name="pref_example_list_values">
+    <string-array name="pref_example_list_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
     </string-array>
 
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
 
     <string-array name="multi_select_list_preference_default_value" />
 
@@ -99,4 +87,8 @@
     <string name="rater_rate_now">Rate now</string>
     <string name="rater_later">Later</string>
     <string name="rater_no_thanks">No, thanks</string>
+    <string name="pref_title_display_name">Display name</string>
+    <string name="main_max_number_of_timers">Maximum number of timers achieved</string>
+    <string name="main_upgrade_to_paid">Upgrade to the pro version to get up to 10 timers</string>
+    <string name="main_delete_before_adding_timer">Already achieved maximum number of timers. You can delete timers by long pressing on them and choosing delete.</string>
 </resources>
