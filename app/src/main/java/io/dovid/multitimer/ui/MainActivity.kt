@@ -25,6 +25,8 @@ import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
 import io.dovid.multitimer.utilities.AppRater
+import io.dovid.multitimer.utilities.RingtonePlayer
+import io.dovid.multitimer.utilities.VibrationPlayer
 import tourguide.tourguide.Overlay
 import tourguide.tourguide.Pointer
 import tourguide.tourguide.ToolTip
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         setupColors()
         loadAd()
         AppRater.app_launched(this)
+        RingtonePlayer.stopPlaying()
     }
 
     override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
@@ -124,6 +127,8 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         setupColors()
         mAdapter?.setColors(colors)
         registerReceiver(receiver, IntentFilter(BuildConfig.UPDATE_TIMERS))
+        RingtonePlayer.stopPlaying()
+        VibrationPlayer.stopVibrating()
     }
 
     override fun onStop() {

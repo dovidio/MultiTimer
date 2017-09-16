@@ -1,14 +1,7 @@
 package io.dovid.multitimer.ui
 
-import android.content.Context
 import android.content.Intent
-import android.media.Ringtone
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -23,13 +16,12 @@ import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
+import io.dovid.multitimer.utilities.RingtonePlayer
 import io.dovid.multitimer.utilities.TimerAlarmManager
+import io.dovid.multitimer.utilities.VibrationPlayer
 
 
 class TimesUpActivity : AppCompatActivity() {
-    private var r: Ringtone? = null
-    private var v: Vibrator? = null
-
     private val MATERIAL_THEME = "0"
     private val DARK_THEME = "1"
     private val BAKERY_THEME = "2"
@@ -86,27 +78,16 @@ class TimesUpActivity : AppCompatActivity() {
             val vibrate = preferences.getBoolean("notifications_new_message_vibrate", false)
 
             if (vibrate) {
-                Log.d(TAG, "playAlarmRingtone: vibrating")
-                v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val timings = longArrayOf(1000, 1000)
-                    val amplitudes = intArrayOf(255, 0)
-                    v!!.vibrate(VibrationEffect.createWaveform(timings, amplitudes, 0))
-                } else {
-                    val pattern = longArrayOf(0, 1000, 1000)
-                    v!!.vibrate(pattern, 0)
-                }
+                VibrationPlayer.vibrate(this)
             }
 
             if (ringtone != null) {
-                val uri = Uri.parse(ringtone)
-                r = RingtoneManager.getRingtone(applicationContext, uri)
-                r!!.play()
+                RingtonePlayer.playRingtone(this, ringtone)
+            } else {
+                RingtonePlayer.playDefaultAlarm(this)
             }
         } else {
-            val alarm = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM)
-            r = RingtoneManager.getRingtone(applicationContext, alarm)
-            r!!.play()
+            RingtonePlayer.playDefaultAlarm(this)
         }
     }
 
@@ -129,12 +110,8 @@ class TimesUpActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (r != null && r!!.isPlaying) {
-            r!!.stop()
-        }
-        if (v != null) {
-            v!!.cancel()
-        }
+        RingtonePlayer.stopPlaying()
+        VibrationPlayer.stopVibrating()
     }
 
     override fun onStop() {
