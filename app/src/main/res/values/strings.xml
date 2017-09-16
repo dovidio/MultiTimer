@@ -90,7 +90,7 @@
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-4466818474991718/4381321422</string>
     <string name="enjoy_using_multitimer">Enjoy using multitimer?</string>
     <string name="if_you_enjoy_using">If you enjoy using</string>
-    <string name="please_take_a_moment_to_rate_it">, please take a moment to rate it. Thanks for your support!</string>
+    <string name="please_take_a_moment_to_rate_it">please take a moment to rate it. Thanks for your support!</string>
     <string name="name_cannot_be_empty">The name cannot be empty</string>
     <string name="hours_cannot_be_empty">Hours cannot be empty</string>
     <string name="minutes_cannot_be_empty">Minutes cannot be empty</string>

@@ -19,7 +19,7 @@
     <string name="notify_me" translatable="false">avvertimi</string>
     <string name="our_pro_app">Con la nostra app pro potrai sbarazzarti della pubblicità!</string>
     <string name="play_initial_tutorial_again">Riproduci il tutorial iniziale</string>
-    <string name="please_take_a_moment_to_rate_it">\", per favore, prenditi un momento per valutarla. Grazie per il tuo supporto!\"</string>
+    <string name="please_take_a_moment_to_rate_it">per favore, prenditi un momento per valutarla. Grazie per il tuo supporto!</string>
     <string name="pref_header_general">Generali</string>
     <string name="pref_header_notifications">Notifiche</string>
     <string name="pref_ringtone_silent">Silenzioso</string>
