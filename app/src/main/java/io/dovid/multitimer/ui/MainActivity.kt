@@ -132,7 +132,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         }
 
         mAdapter?.setColors(colors)
-        mAdapter?.setContext(this)
         registerReceiver(receiver, IntentFilter(BuildConfig.UPDATE_TIMERS))
         RingtonePlayer.stopPlaying()
         VibrationPlayer.stopVibrating()
