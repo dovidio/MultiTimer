@@ -56,23 +56,23 @@ public class AppRater {
     }
 
     public static void showRateDialog(final Context context, final SharedPreferences.Editor editor) {
-        new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context, android.R.style.Theme_Holo_Light_Dialog)
                 .setTitle(R.string.enjoy_using_multitimer)
                 .setMessage(context.getString(R.string.if_you_enjoy_using) + " " + APP_TITLE + ", " + context.getString(R.string.please_take_a_moment_to_rate_it))
-                .setPositiveButton("Rate it!", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.rater_rate_now, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + APP_PNAME)));
                         dialogInterface.dismiss();
                     }
                 })
-                .setNeutralButton("Remind me later", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.rater_later, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
                     }
                 })
-                .setNegativeButton("No, thanks", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.rater_no_thanks, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (editor != null) {

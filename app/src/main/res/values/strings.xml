@@ -96,4 +96,7 @@
     <string name="minutes_cannot_be_empty">Minutes cannot be empty</string>
     <string name="seconds_cannot_be_empty">Seconds cannot be empty</string>
     <string name="timer_must_be_one_second_length">Timer must at least be one second long</string>
+    <string name="rater_rate_now">Rate now</string>
+    <string name="rater_later">Later</string>
+    <string name="rater_no_thanks">No, thanks</string>
 </resources>

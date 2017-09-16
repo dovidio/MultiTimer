@@ -47,4 +47,7 @@
     <string name="you_can_get_up_to">Passa a pro e potrai usare fino a 10 timer!</string>
     <string name="name_cannot_be_empty">Il nome non può essere vuoto</string>
     <string name="action_settings">Preferenze</string>
+    <string name="rater_later">Più tardi</string>
+    <string name="rater_no_thanks">No, grazie</string>
+    <string name="rater_rate_now">Valuta</string>
 </resources>
