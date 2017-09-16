@@ -58,7 +58,7 @@ public class AppRater {
     public static void showRateDialog(final Context context, final SharedPreferences.Editor editor) {
         new AlertDialog.Builder(context)
                 .setTitle(R.string.enjoy_using_multitimer)
-                .setMessage(context.getString(R.string.if_you_enjoy_using) + APP_TITLE + context.getString(R.string.please_take_a_moment_to_rate_it))
+                .setMessage(context.getString(R.string.if_you_enjoy_using) + " " + APP_TITLE + ", " + context.getString(R.string.please_take_a_moment_to_rate_it))
                 .setPositiveButton("Rate it!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
