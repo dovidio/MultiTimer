@@ -21,14 +21,6 @@ import io.dovid.multitimer.R;
 
 public class ColorSchemeChooserDialog extends DialogFragment {
 
-    private final int[] imageResources = {R.mipmap.material_design, R.mipmap.dark, R.mipmap.bakery};
-    private final String[] titles = {getString(R.string.material_design), getString(R.string.dark), getString(R.string.bakery)};
-    private final String[] descriptions = {
-            getString(R.string.material_design_description),
-            getString(R.string.dark_description),
-            getString(R.string.bakery_description)
-    };
-
     public static ColorSchemeChooserDialog getInstance() {
         return new ColorSchemeChooserDialog();
     }
@@ -36,6 +28,14 @@ public class ColorSchemeChooserDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View v = getActivity().getLayoutInflater().inflate(R.layout.dialog_color_scheme, null, false);
+
+        final int[] imageResources = {R.mipmap.material_design, R.mipmap.dark, R.mipmap.bakery};
+        final String[] titles = {getString(R.string.material_design), getString(R.string.dark), getString(R.string.bakery)};
+        final String[] descriptions = {
+                getString(R.string.material_design_description),
+                getString(R.string.dark_description),
+                getString(R.string.bakery_description)
+        };
 
         RecyclerView rv = v.findViewById(R.id.themes_rv);
 
