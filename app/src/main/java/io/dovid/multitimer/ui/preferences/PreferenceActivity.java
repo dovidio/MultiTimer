@@ -32,14 +32,17 @@ public class PreferenceActivity extends AppCompatActivity implements PreferenceA
     private static final int VIBRATION = 2;
     private static final String TAG = "PREFERENCEACTIVITY";
 
-    final int[] imageResources = {R.drawable.ic_settings_theme, R.drawable.ic_settings_ringtone, R.drawable.ic_settings_vibration};
-    final String[] names = {getString(R.string.color_scheme), getString(R.string.ringtone), getString(R.string.vibration)};
+
 
     private RecyclerView rv;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final int[] imageResources = {R.drawable.ic_settings_theme, R.drawable.ic_settings_ringtone, R.drawable.ic_settings_vibration};
+        final String[] names = {getString(R.string.color_scheme), getString(R.string.ringtone), getString(R.string.vibration)};
+
         setContentView(R.layout.preference_activity);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
