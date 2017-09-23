@@ -2,11 +2,10 @@ package io.dovid.multitimer.utilities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.database.DatabaseHelper;
@@ -39,9 +38,8 @@ public class TimerRunner {
         final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
         if (!isRunning) {
             isRunning = true;
-            final Timer timer = new Timer();
-
-            TimerTask task = new TimerTask() {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     // TimerDAO.printTimerTableStatistic(databaseHelper);
@@ -54,10 +52,9 @@ public class TimerRunner {
                     }
                     Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
                     context.sendBroadcast(i);
+                    handler.postDelayed(this, 1000);
                 }
-            };
-
-            timer.scheduleAtFixedRate(task, 0, 1000);
+            }, 1000);
         }
     }
 }
