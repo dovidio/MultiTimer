@@ -36,11 +36,8 @@ public class TimerDAO {
 
     public synchronized static void create(final DatabaseHelper databaseHelper, final String name,
                                            final long time, final boolean isRunning, final boolean shouldNotify) {
-
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.put(NAME, name);
@@ -53,20 +50,16 @@ public class TimerDAO {
 
         } catch (SQLiteException e) {
             Log.e(TAG, "create: ", e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
+
     }
 
     public synchronized static ArrayList<TimerEntity> getTimers(final DatabaseHelper databaseHelper) {
         ArrayList<TimerEntity> timers = new ArrayList<>();
-        SQLiteDatabase writeDatabase = null;
         Cursor timersCursor = null;
 
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
             String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY _ID ASC";
 
             timersCursor = writeDatabase.rawQuery(query, null);
@@ -86,9 +79,6 @@ public class TimerDAO {
         } catch (SQLiteException e) {
             Log.e(TAG, "getTimer: ", e);
         } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
             if (timersCursor != null) {
                 timersCursor.close();
             }
@@ -98,9 +88,8 @@ public class TimerDAO {
     }
 
     public synchronized static void updateTimerExpiredTime(final DatabaseHelper databaseHelper, final int timerId, final long newExpiredTime) {
-        SQLiteDatabase writeDatabase = null;
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.put(EXPIRED_TIME, newExpiredTime);
@@ -109,19 +98,13 @@ public class TimerDAO {
 
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimerExpiredTime: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static void updateTimerExpiredTime(final DatabaseHelper databaseHelper, final int timerId) {
-        SQLiteDatabase writeDatabase = null;
         Cursor cursor = null;
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             String query = "SELECT " + PlAY_STARTED_AT;
             query += ", " + DEFAULT_TIME;
@@ -148,11 +131,7 @@ public class TimerDAO {
 
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimerExpiredTime: ", e);
-            throw new RuntimeException(e);
         } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
             if (cursor != null) {
                 cursor.close();
             }
@@ -160,10 +139,8 @@ public class TimerDAO {
     }
 
     public synchronized static void updateTimerRunning(final DatabaseHelper databaseHelper, final int timerId, final boolean isRunning) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.put(IS_RUNNING, isRunning);
@@ -171,19 +148,12 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, "_ID=?", new String[]{String.valueOf(timerId)});
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimerRunning: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static void updateTimerPlayTimestamp(final DatabaseHelper databaseHelper, final int timerId, final long timestamp) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.put(PlAY_STARTED_AT, timestamp);
@@ -191,20 +161,13 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, "_ID=?", new String[]{String.valueOf(timerId)});
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimerPlayTimestamp: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static void updateTimer(final DatabaseHelper databaseHelper, final int timerId,
                                                 final String name, final long defaultTime, final long expireTime) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.put(NAME, name);
@@ -214,20 +177,14 @@ public class TimerDAO {
 
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimer: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static Object getProperty(final DatabaseHelper databaseHelper, final String property, final int timerId) {
-        SQLiteDatabase writeDatabase = null;
         Cursor c = null;
 
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + _ID + " = " + timerId;
 
@@ -255,12 +212,8 @@ public class TimerDAO {
                 Log.d(TAG, "getProperty: " + timerId);
             }
         } catch (SQLiteException e) {
-            Log.e(TAG, "getPropert: ", e);
-            throw new RuntimeException(e);
+            Log.e(TAG, "getProperty: ", e);
         } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
             if (c != null) {
                 c.close();
             }
@@ -269,11 +222,9 @@ public class TimerDAO {
     }
 
     public synchronized static void printTimerTableStatistic(final DatabaseHelper databaseHelper) {
-
-        SQLiteDatabase writeDatabase = null;
         Cursor c = null;
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             String query = "SELECT * FROM " + TABLE_NAME;
 
@@ -295,9 +246,6 @@ public class TimerDAO {
         } catch (SQLiteException e) {
             Log.e(TAG, "printTimerTableStatistic: ", e);
         } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
             if (c != null) {
                 c.close();
             }
@@ -305,46 +253,29 @@ public class TimerDAO {
     }
 
     public synchronized static void deleteTimer(final DatabaseHelper databaseHelper, final int timerId) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
             writeDatabase.delete(TABLE_NAME, _ID + "=?", new String[]{String.valueOf(timerId)});
         } catch (SQLiteException e) {
             Log.e(TAG, "deleteTimer: ", e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static void updateTimerShouldNotify(final DatabaseHelper databaseHelper, final int timerId, final boolean shouldNotify) {
-
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put(SHOULD_NOTIFY, shouldNotify);
             writeDatabase.update(TABLE_NAME, cv, _ID + "=?", new String[]{String.valueOf(timerId)});
 
         } catch (SQLiteException e) {
             Log.e(TAG, "updateTimerShouldNotify: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
-
     }
 
     public synchronized static void putPlayTimeStampNull(final DatabaseHelper databaseHelper, final int timerId) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
 
             ContentValues cv = new ContentValues();
             cv.putNull(PlAY_STARTED_AT);
@@ -352,29 +283,17 @@ public class TimerDAO {
             writeDatabase.update(TABLE_NAME, cv, "_ID=" + timerId, null);
         } catch (SQLiteException e) {
             Log.e(TAG, "putPlayTimeStampNull: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
     public synchronized static void updateIsAnimating(final DatabaseHelper databaseHelper, final int timerId, boolean isAnimating) {
-        SQLiteDatabase writeDatabase = null;
-
         try {
-            writeDatabase = databaseHelper.getWritableDatabase();
+            SQLiteDatabase writeDatabase = databaseHelper.getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put(IS_ANIMATING, isAnimating);
             writeDatabase.update(TABLE_NAME, cv, "_ID=" + timerId, null);
         } catch (SQLiteException e) {
             Log.e(TAG, "updateIsAnimating: ", e);
-            throw new RuntimeException(e);
-        } finally {
-            if (writeDatabase != null && writeDatabase.isOpen()) {
-                writeDatabase.close();
-            }
         }
     }
 
