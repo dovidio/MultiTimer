@@ -46,7 +46,7 @@ class TimesUpActivity : AppCompatActivity() {
         TimerAlarmManager.setupAlarms(this)
 
         val timesUpTV = findViewById(R.id.textViewTimesUp) as TextView
-        timesUpTV.text = timerName + " " + getString(R.string.time_up)
+        timesUpTV.text = """$timerName ${getString(R.string.time_up)}"""
 
         val backToTimers = findViewById(R.id.times_up_back_to_timers_button) as Button
 
@@ -116,14 +116,10 @@ class TimesUpActivity : AppCompatActivity() {
     }
 
     private fun updateExpiredTimer(timerId: Int) {
-        var databaseHelper: DatabaseHelper? = null
-        try {
-            databaseHelper = DatabaseHelper.getInstance(this)
-            val defaultTime = TimerDAO.getProperty(databaseHelper, "DEFAULT_TIME", timerId) as Long
-            TimerDAO.updateTimerRunning(databaseHelper, timerId, false)
-            TimerDAO.updateTimerExpiredTime(databaseHelper, timerId, defaultTime)
-        } finally {
-        }
+        val databaseHelper = DatabaseHelper.getInstance(this)
+        val defaultTime = TimerDAO.getProperty(databaseHelper, "DEFAULT_TIME", timerId) as Long
+        TimerDAO.updateTimerRunning(databaseHelper, timerId, false)
+        TimerDAO.updateTimerExpiredTime(databaseHelper, timerId, defaultTime)
     }
 
     companion object {
