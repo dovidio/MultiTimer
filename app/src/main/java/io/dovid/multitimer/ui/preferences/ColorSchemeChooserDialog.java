@@ -22,11 +22,11 @@ import io.dovid.multitimer.R;
 public class ColorSchemeChooserDialog extends DialogFragment {
 
     private final int[] imageResources = {R.mipmap.material_design, R.mipmap.dark, R.mipmap.bakery};
-    private final String[] titles = {"Material Design", "Dark", "Bakery",};
+    private final String[] titles = {getString(R.string.material_design), getString(R.string.dark), getString(R.string.bakery)};
     private final String[] descriptions = {
-            "Colorful scheme inspired by Material Design",
-            "Color scheme inspired by Batman",
-            "Color scheme inspired by your typical bakery"
+            getString(R.string.material_design_description),
+            getString(R.string.dark_description),
+            getString(R.string.bakery_description)
     };
 
     public static ColorSchemeChooserDialog getInstance() {
