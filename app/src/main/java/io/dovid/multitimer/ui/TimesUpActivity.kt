@@ -72,40 +72,35 @@ class TimesUpActivity : AppCompatActivity() {
     }
 
     private fun playAlarmRingtone() {
-        if (BuildConfig.PAID) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-            val ringtone = preferences.getString("notifications_new_message_ringtone", null)
-            val vibrate = preferences.getBoolean("notifications_new_message_vibrate", false)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val ringtone = preferences.getString(getString(R.string.preference_ringtone), null)
+        val vibrate = preferences.getBoolean(getString(R.string.preference_vibrate), false)
 
-            if (vibrate) {
-                VibrationPlayer.vibrate(this)
-            }
+        if (vibrate) {
+            VibrationPlayer.vibrate(this)
+        }
 
-            if (ringtone != null) {
-                RingtonePlayer.playRingtone(this, ringtone)
-            } else {
-                RingtonePlayer.playDefaultAlarm(this)
-            }
+        if (ringtone != null) {
+            RingtonePlayer.playRingtone(this, ringtone)
         } else {
             RingtonePlayer.playDefaultAlarm(this)
         }
     }
 
     private fun setupColors() {
-        if (BuildConfig.PAID) {
-            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-            val colorTheme = sharedPreferences.getString("color_theme_list", "0")
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val colorTheme = sharedPreferences.getString(getString(R.string.preference_color_scheme), "0")
 
-            val rl = findViewById(R.id.times_up_rl) as RelativeLayout
+        val rl = findViewById(R.id.times_up_rl) as RelativeLayout
 
-            if (colorTheme == MATERIAL_THEME) {
-                rl.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
-            } else if (colorTheme == DARK_THEME) {
-                rl.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_card))
-            } else {
-                rl.setBackgroundColor(ContextCompat.getColor(this, R.color.bakery_card2))
-            }
+        if (colorTheme == MATERIAL_THEME) {
+            rl.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        } else if (colorTheme == DARK_THEME) {
+            rl.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_card))
+        } else {
+            rl.setBackgroundColor(ContextCompat.getColor(this, R.color.bakery_card2))
         }
+
     }
 
     override fun onDestroy() {
@@ -117,6 +112,7 @@ class TimesUpActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop: called")
         super.onStop()
+        finish()
     }
 
     private fun updateExpiredTimer(timerId: Int) {
@@ -127,7 +123,6 @@ class TimesUpActivity : AppCompatActivity() {
             TimerDAO.updateTimerRunning(databaseHelper, timerId, false)
             TimerDAO.updateTimerExpiredTime(databaseHelper, timerId, defaultTime)
         } finally {
-            databaseHelper?.close()
         }
     }
 
