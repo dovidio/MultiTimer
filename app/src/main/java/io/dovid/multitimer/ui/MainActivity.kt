@@ -7,7 +7,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
-import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -19,12 +18,11 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import io.dovid.multitimer.BuildConfig
 import io.dovid.multitimer.R
 import io.dovid.multitimer.database.DatabaseHelper
 import io.dovid.multitimer.model.TimerDAO
+import io.dovid.multitimer.ui.preferences.PreferenceActivity
 import io.dovid.multitimer.utilities.AppRater
 import io.dovid.multitimer.utilities.RingtonePlayer
 import io.dovid.multitimer.utilities.VibrationPlayer
@@ -32,7 +30,6 @@ import tourguide.tourguide.Overlay
 import tourguide.tourguide.Pointer
 import tourguide.tourguide.ToolTip
 import tourguide.tourguide.TourGuide
-
 
 class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
 
@@ -65,8 +62,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         createRecyclerView()
 
-
-
         fab = findViewById(R.id.fab) as FloatingActionButton
         fab?.setOnClickListener {
             mTourGuideHandler?.cleanUp()
@@ -77,11 +72,9 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                 createDialog.show(fragmentManager, "createTimer")
             } else {
                 val builder = AlertDialog.Builder(this@MainActivity).setTitle(getString(R.string.main_max_number_of_timers))
-                if (!BuildConfig.PAID) {
-                    builder.setMessage(getString(R.string.main_upgrade_to_paid))
-                } else {
-                    builder.setMessage(getString(R.string.main_delete_before_adding_timer))
-                }
+
+                builder.setMessage(getString(R.string.main_delete_before_adding_timer))
+
                 builder.setPositiveButton(getString(android.R.string.ok), DialogInterface.OnClickListener { dialogInterface, _ ->
                     dialogInterface.dismiss()
                 }).create().show()
@@ -93,7 +86,6 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         }
 
         setupColors()
-        loadAd()
         AppRater.app_launched(this)
     }
 
@@ -139,21 +131,21 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(receiver)
-        finish()
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "MainActivity IllegalArgumentException", e);
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.action_settings -> {
-                val i = Intent(this, SettingsActivity::class.java)
+                val i = Intent(this, PreferenceActivity::class.java)
                 startActivity(i)
             }
             R.id.action_about -> {
                 AboutDialog.getInstance().show(fragmentManager, "AboutDialog")
-            }
-            R.id.action_purchase_pro -> {
-                GoProDialog.getInstance().show(fragmentManager, "GoProDialog")
             }
             R.id.action_play_tutorial -> {
                 sharedPreferences.edit().remove("tutorial1").remove("tutorial2").commit()
@@ -164,44 +156,17 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (BuildConfig.PAID) {
-            menuInflater.inflate(R.menu.menu_main_paid, menu)
-        } else {
-            menuInflater.inflate(R.menu.menu_main_free, menu)
-        }
+        menuInflater.inflate(R.menu.menu_main_paid, menu)
+
         return true
     }
 
     fun setupColors() {
-        if (BuildConfig.PAID) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-            val colorTheme = preferences.getString("color_theme_list", "0")
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val colorTheme = preferences.getString(getString(R.string.preference_color_scheme), "0")
 
-            if (colorTheme == MATERIAL_THEME) {
-                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimary))
-                colors = intArrayOf(R.color.material_card1,
-                        R.color.material_card2,
-                        R.color.material_card3,
-                        R.color.material_card4,
-                        R.color.material_card5,
-                        R.color.material_card6,
-                        R.color.material_card7,
-                        R.color.material_card8,
-                        R.color.material_card9,
-                        R.color.material_card10)
-            } else if (colorTheme == DARK_THEME) {
-                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_dark_material_dark))
-                colors = intArrayOf(R.color.dark_card)
-            } else {
-                fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bakery_card2))
-                colors = intArrayOf(
-                        R.color.bakery_card1,
-                        R.color.bakery_card2,
-                        R.color.bakery_card3,
-                        R.color.bakery_card4,
-                        R.color.bakery_card5)
-            }
-        } else {
+        if (colorTheme == MATERIAL_THEME) {
+            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimary))
             colors = intArrayOf(R.color.material_card1,
                     R.color.material_card2,
                     R.color.material_card3,
@@ -212,23 +177,17 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
                     R.color.material_card8,
                     R.color.material_card9,
                     R.color.material_card10)
-        }
-    }
-
-    private fun loadAd() {
-        val googleAd = findViewById(R.id.google_ad) as AdView
-
-        if (BuildConfig.PAID) {
-            googleAd.visibility = View.GONE
+        } else if (colorTheme == DARK_THEME) {
+            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_dark_material_dark))
+            colors = intArrayOf(R.color.dark_card)
         } else {
-            val android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
-
-            val adRequest = AdRequest.Builder()
-                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                    .addTestDevice(android_id)
-                    .build()
-
-            googleAd.loadAd(adRequest)
+            fab?.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bakery_card2))
+            colors = intArrayOf(
+                    R.color.bakery_card1,
+                    R.color.bakery_card2,
+                    R.color.bakery_card3,
+                    R.color.bakery_card4,
+                    R.color.bakery_card5)
         }
     }
 
@@ -270,6 +229,10 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
         mRecyclerView?.layoutManager = manager
         mRecyclerView?.adapter = mAdapter
+    }
+
+    override fun onBackPressed() {
+        moveTaskToBack(true)
     }
 
     companion object {
