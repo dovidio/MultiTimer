@@ -41,5 +41,4 @@ public class RingtonePlayer {
             r.stop();
         }
     }
-
 }
