@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -26,7 +25,6 @@ public class RingtonePlayer {
         Uri uri = Uri.parse(ringtone);
         r = RingtoneManager.getRingtone(context, uri);
         r.play();
-        stopAfter(20000);
     }
 
 
@@ -35,7 +33,6 @@ public class RingtonePlayer {
         Uri alarm = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_ALARM);
         r = RingtoneManager.getRingtone(context, alarm);
         r.play();
-        stopAfter(20000);
     }
 
     public static void stopPlaying() {
@@ -45,13 +42,4 @@ public class RingtonePlayer {
         }
     }
 
-    private static void stopAfter(long milliseconds) {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopPlaying();
-            }
-        }, milliseconds);
-    }
 }
