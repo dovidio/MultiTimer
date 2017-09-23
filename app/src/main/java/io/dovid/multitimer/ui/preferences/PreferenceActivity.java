@@ -33,7 +33,7 @@ public class PreferenceActivity extends AppCompatActivity implements PreferenceA
     private static final String TAG = "PREFERENCEACTIVITY";
 
     final int[] imageResources = {R.drawable.ic_settings_theme, R.drawable.ic_settings_ringtone, R.drawable.ic_settings_vibration};
-    final String[] names = {"Temi", "Suonerie", "Vibrazione"};
+    final String[] names = {getString(R.string.color_scheme), getString(R.string.ringtone), getString(R.string.vibration)};
 
     private RecyclerView rv;
 
