@@ -91,4 +91,9 @@
     <string name="main_max_number_of_timers">Maximum number of timers achieved</string>
     <string name="main_upgrade_to_paid">Upgrade to the pro version to get up to 10 timers</string>
     <string name="main_delete_before_adding_timer">Already achieved maximum number of timers. You can delete timers by long pressing on them and choosing delete.</string>
+    <string name="color_scheme_choose_color_scheme">Choose your favourite color scheme</string>
+    <string name="preference_color_scheme">color_scheme_list</string>
+    <string name="preference_ringtone_select_a_ringtone">Select a ringtone</string>
+    <string name="preference_ringtone">notifications_new_message_ringtone</string>
+    <string name="preference_vibrate">notifications_new_message_vibrate</string>
 </resources>
