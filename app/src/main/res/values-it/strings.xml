@@ -50,4 +50,12 @@
     <string name="main_delete_before_adding_timer">Hai già raggiunto il massimo  numero possibile di timer. Puoi cancellare i timer tenendo premuto il dito e selezionando l\'operazione elimina.</string>
     <string name="main_max_number_of_timers">Numero massimo di timer raggiunto</string>
     <string name="main_upgrade_to_paid">Passa alla versione pro per avere fino a 10 timers</string>
+    <string name="color_scheme_choose_color_scheme">Scegli il tuo tema preferito</string>
+    <string name="preference_ringtone_select_a_ringtone">Scegli una suoneria</string>
+    <string name="bakery_description">Tema ispirato dalle tipiche bakery inglesi</string>
+    <string name="color_scheme">Temi</string>
+    <string name="dark_description">Tema ispirato da Batman</string>
+    <string name="material_design_description">Tema vivace ispirato dai colori del Material Design</string>
+    <string name="ringtone">Suoneria</string>
+    <string name="vibration">Vibrazione</string>
 </resources>
