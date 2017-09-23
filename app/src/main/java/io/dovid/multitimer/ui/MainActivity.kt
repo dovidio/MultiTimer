@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
     private var mTourGuideHandler: TourGuide? = null
     lateinit var colors: IntArray
     private lateinit var sharedPreferences: SharedPreferences
-
+    private var toolbar: Toolbar? = null
     private var receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             mAdapter?.refreshTimers()
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate timers count: " + mAdapter?.itemCount)
         setContentView(R.layout.activity_main)
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        toolbar = findViewById(R.id.toolbar) as Toolbar
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
