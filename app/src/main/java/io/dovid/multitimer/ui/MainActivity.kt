@@ -35,12 +35,13 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: TimersAdapter? = null
-    private var databaseHelper: DatabaseHelper? = null
     private var fab: FloatingActionButton? = null
     private var mTourGuideHandler: TourGuide? = null
     lateinit var colors: IntArray
     private lateinit var sharedPreferences: SharedPreferences
+
     private var toolbar: Toolbar? = null
+
     private var receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             mAdapter?.refreshTimers()
@@ -50,19 +51,30 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate timers count: " + mAdapter?.itemCount)
+
         setContentView(R.layout.activity_main)
+
         toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
-        setSupportActionBar(toolbar)
+        // setup recycler view holding timers
+        mRecyclerView = findViewById(R.id.recyclerView) as RecyclerView
+        val manager = LinearLayoutManager(this)
+        mRecyclerView?.layoutManager = manager
+        mAdapter = TimersAdapter(this)
+        mRecyclerView?.adapter = mAdapter
 
-        databaseHelper = DatabaseHelper.getInstance(this)
+        setupColors()
+        AppRater.app_launched(this)
 
-        createRecyclerView()
+        if (!sharedPreferences.contains(TutorialStep.POINT_TO_FAB.toString())) {
+            loadTutorial(step = TutorialStep.POINT_TO_FAB, target = fab)
+        }
 
         fab = findViewById(R.id.fab) as FloatingActionButton
+
         fab?.setOnClickListener {
             mTourGuideHandler?.cleanUp()
             sharedPreferences.edit().putBoolean("tutorial1", true).apply()
@@ -81,84 +93,35 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
             }
         }
 
-        if (!sharedPreferences.contains("tutorial1")) {
-            loadTutorial(step = 0, target = fab)
-        }
 
-        setupColors()
-        AppRater.app_launched(this)
-    }
-
-    override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
-        TimerDAO.create(databaseHelper, name, time, false, true)
-        mAdapter?.insertTimer()
-        dialog.dismiss()
-        if (!sharedPreferences.contains("tutorial2")) {
-            mRecyclerView?.smoothScrollToPosition((mAdapter?.itemCount ?: 1) - 1)
-            Handler().postDelayed({
-                loadTutorial(step = 1, target = mRecyclerView?.getChildAt(0))
-            }, 1000)
-        }
-        Handler().postDelayed({
-            mTourGuideHandler?.cleanUp()
-            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
-        }, 6000)
-
-    }
-
-    override fun onUpdate(name: String, defaultTime: Long, timerId: Int, dialog: DialogFragment) {
-        dialog.dismiss()
-        TimerDAO.updateTimer(databaseHelper, timerId, name, defaultTime, defaultTime)
-        mAdapter?.refreshTimers()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume timer count: " + mAdapter?.itemCount)
-        setupColors()
-
-        if (mRecyclerView == null) {
-            Log.d(TAG, "Recycler view is null")
-        } else if (mRecyclerView?.layoutManager == null) {
-            Log.d(TAG, "Recycler view manager is empty")
-        }
-
-        mAdapter?.setColors(colors)
-        registerReceiver(receiver, IntentFilter(BuildConfig.UPDATE_TIMERS))
-        RingtonePlayer.stopPlaying()
-        VibrationPlayer.stopVibrating()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        try {
-            unregisterReceiver(receiver)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "MainActivity IllegalArgumentException", e);
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.action_settings -> {
-                val i = Intent(this, PreferenceActivity::class.java)
-                startActivity(i)
-            }
-            R.id.action_about -> {
-                AboutDialog.getInstance().show(fragmentManager, "AboutDialog")
-            }
-            R.id.action_play_tutorial -> {
-                sharedPreferences.edit().remove("tutorial1").remove("tutorial2").commit()
-                loadTutorial(step = 0, target = fab)
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main_paid, menu)
-
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+
+            R.id.action_settings -> {
+                val i = Intent(this, PreferenceActivity::class.java)
+                startActivity(i)
+            }
+
+            R.id.action_about -> {
+                AboutDialog.getInstance().show(fragmentManager, "AboutDialog")
+            }
+
+            R.id.action_play_tutorial -> {
+                sharedPreferences.edit()
+                        .remove(TutorialStep.POINT_TO_FAB.toString())
+                        .remove(TutorialStep.POINT_TO_TIMER.toString())
+                        .commit()
+                loadTutorial(step = TutorialStep.POINT_TO_FAB, target = fab)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun setupColors() {
@@ -191,28 +154,31 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         }
     }
 
-    private fun loadTutorial(step: Int, target: View?) {
+    private fun loadTutorial(step: TutorialStep, target: View?) {
         if (target != null) {
-            if (step == 0) {
+            if (step.equals(TutorialStep.POINT_TO_FAB)) {
                 mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
                         .setPointer(Pointer().setGravity(Gravity.TOP))
                         .setToolTip(ToolTip().setTitle(getString(R.string.welcome)).
                                 setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
                         .setOverlay(Overlay().setOnClickListener {
                             mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial1", true).apply()
+                            sharedPreferences.edit()
+                                    .putBoolean(TutorialStep.POINT_TO_FAB.toString(), true)
+                                    .apply()
                         })
                         .playOn(target)
-            } else if (step == 1) {
+            } else if (step.equals(TutorialStep.POINT_TO_TIMER)) {
                 mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.VerticalDownward)
                         .setToolTip(ToolTip()
                                 .setDescription(getString(R.string.long_press_timer)).setGravity(Gravity.CENTER).setOnClickListener {
                             mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
+                            sharedPreferences.edit()
+                                    .putBoolean(TutorialStep.POINT_TO_TIMER.toString(), true)
+                                    .apply()
                         })
                         .setOverlay(Overlay().setOnClickListener {
                             mTourGuideHandler?.cleanUp()
-                            sharedPreferences.edit().putBoolean("tutorial2", true).apply()
                         }.setStyle(Overlay.Style.Rectangle))
                         .playOn(target)
             } else {
@@ -221,14 +187,50 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         }
     }
 
-    private fun createRecyclerView() {
-        mRecyclerView = findViewById(R.id.recyclerView) as RecyclerView
-        mAdapter = TimersAdapter(this)
+    // TimerCreateDialogListener implementation
+    override fun onCreateTimer(name: String, time: Long, dialog: DialogFragment) {
 
-        val manager = LinearLayoutManager(this)
+        TimerDAO.create(DatabaseHelper.getInstance(this), name, time, false, true)
 
-        mRecyclerView?.layoutManager = manager
-        mRecyclerView?.adapter = mAdapter
+        mAdapter?.insertTimer()
+        dialog.dismiss()
+
+        if (!sharedPreferences.contains(TutorialStep.POINT_TO_TIMER.toString())) {
+            Handler().postDelayed({
+                loadTutorial(step = TutorialStep.POINT_TO_TIMER, target = mRecyclerView?.getChildAt(0))
+            }, 1000)
+        }
+
+        // in case user does not find easy to clear tutorial
+        Handler().postDelayed({
+            mTourGuideHandler?.cleanUp()
+        }, 6000)
+
+    }
+
+    // TimerUpdateDialogListener implementation
+    override fun onUpdate(name: String, defaultTime: Long, timerId: Int, dialog: DialogFragment) {
+        dialog.dismiss()
+        TimerDAO.updateTimer(DatabaseHelper.getInstance(this), timerId, name, defaultTime, defaultTime)
+        mAdapter?.refreshTimers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupColors()
+        mAdapter?.setColors(colors)
+        registerReceiver(receiver, IntentFilter(BuildConfig.UPDATE_TIMERS))
+        RingtonePlayer.stopPlaying()
+        VibrationPlayer.stopVibrating()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "MainActivity IllegalArgumentException", e);
+        }
     }
 
     override fun onBackPressed() {
@@ -241,4 +243,7 @@ class MainActivity : AppCompatActivity(), CreateTimerDialog.TimerCreateDialogLis
         private val DARK_THEME = "1"
     }
 
+    private enum class TutorialStep {
+        POINT_TO_FAB, POINT_TO_TIMER
+    }
 }
