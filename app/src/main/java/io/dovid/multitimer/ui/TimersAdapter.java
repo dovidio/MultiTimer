@@ -24,13 +24,13 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
+import io.dovid.multitimer.utilities.MyCollectionUtils;
 import io.dovid.multitimer.utilities.TimerAlarmManager;
 import io.dovid.multitimer.utilities.TimerRunner;
 
@@ -65,8 +65,14 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
     void refreshTimers() {
         ArrayList<TimerEntity> timerFromDb = TimerDAO.getTimers(databaseHelper);
-        if (Arrays.equals(timers.toArray(), timerFromDb.toArray())) {
-            notifyDataSetChanged();
+        Integer[] indexesOfChangedElements = MyCollectionUtils.indexesOfChangedElements(timers, timerFromDb);
+        for (Integer index : indexesOfChangedElements) {
+            Log.d(TAG, "notifying");
+            notifyItemChanged(index);
+        }
+
+        if (indexesOfChangedElements.length > 0) {
+            timers = timerFromDb;
         }
     }
 
@@ -77,8 +83,8 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
     private void deleteTimer(int position) {
         TimerDAO.deleteTimer(databaseHelper, timers.get(position).getId());
+        timers.remove(position);
         notifyItemRemoved(position);
-        refreshTimers();
     }
 
     void showUpdateTimerDialog(int position) {
@@ -114,9 +120,13 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
         void bind(int position) {
             if (!timers.get(position).isAnimating()) {
+
+                Log.d(TAG, "timer is running: " + timers.get(position).isRunning());
                 if (timers.get(position).isRunning() || timers.get(position).getDefaultTime() != timers.get(position).getExpiredTime()) {
+                    Log.d(TAG, "setupPlayView");
                     setupPlayView(position);
                 } else {
+                    Log.d(TAG, "setupPauseView");
                     setupPauseView(position);
                 }
             } else {
