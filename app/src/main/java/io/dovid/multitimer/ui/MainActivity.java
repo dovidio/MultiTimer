@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -58,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
 
         // setup recycler view holding timers
         recyclerView = findViewById(R.id.recyclerView);
+        // this avoid timer blinking animation when calling notifyItemChanged(position)
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+
         timersAdapter = new TimersAdapter(this);
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
