@@ -2,18 +2,11 @@ package io.dovid.multitimer.ui;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -25,7 +18,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,33 +30,20 @@ import io.dovid.multitimer.ui.preferences.PreferenceActivity;
 import io.dovid.multitimer.utilities.AppRater;
 import io.dovid.multitimer.utilities.RingtonePlayer;
 import io.dovid.multitimer.utilities.VibrationPlayer;
-import tourguide.tourguide.Overlay;
-import tourguide.tourguide.Pointer;
-import tourguide.tourguide.ToolTip;
 import tourguide.tourguide.TourGuide;
 
 public class MainActivity extends AppCompatActivity implements CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
 
-    private RecyclerView mRecyclerView;
-    private TimersAdapter mAdapter;
+    private RecyclerView recyclerView;
+    private TimersAdapter timersAdapter;
     private FloatingActionButton fab;
-    private TourGuide mTourGuideHandler;
+    private TourGuide tourGuideHandler;
     private int[] colors;
     private SharedPreferences sharedPreferences;
-
-    private Toolbar toolbar;
 
     private static final String TAG = "MAINACTIVITY";
     private static final int MATERIAL_THEME = 0;
     private static final int DARK_THEME = 1;
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mAdapter.refreshTimers();
-            Log.d(TAG, "refreshing timers");
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,28 +51,27 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
 
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // setup recycler view holding timers
-        mRecyclerView = findViewById(R.id.recyclerView);
-        mAdapter = new TimersAdapter(this);
+        recyclerView = findViewById(R.id.recyclerView);
+        timersAdapter = new TimersAdapter(this);
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
-        if (mRecyclerView != null) {
-            mRecyclerView.setLayoutManager(manager);
-            mRecyclerView.setAdapter(mAdapter);
+        if (recyclerView != null) {
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(timersAdapter);
         }
-
 
         setupColors();
         AppRater.app_launched(this);
         initSwap();
 
-        if (!sharedPreferences.contains(TutorialStep.POINT_TO_FAB.toString())) {
-            loadTutorial(TutorialStep.POINT_TO_FAB, fab);
+        if (!sharedPreferences.contains(MyTourGuide.TutorialStep.POINT_TO_FAB.toString())) {
+            tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_FAB, fab, tourGuideHandler, this);
         }
 
         fab = findViewById(R.id.fab);
@@ -102,11 +80,11 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mTourGuideHandler != null) {
-                        mTourGuideHandler.cleanUp();
+                    if (tourGuideHandler != null) {
+                        tourGuideHandler.cleanUp();
                     }
 
-                    if (mAdapter != null && mAdapter.getItemCount() < BuildConfig.MAX_TIMERS) {
+                    if (timersAdapter != null && timersAdapter.getItemCount() < BuildConfig.MAX_TIMERS) {
                         CreateTimerDialog createDialog = CreateTimerDialog.getInstance();
                         createDialog.show(getFragmentManager(), "createTimer");
                     } else {
@@ -124,7 +102,22 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
             });
         }
 
+        refreshTimers();
+    }
 
+
+    private void refreshTimers() {
+        final Handler handler = new Handler();
+
+        final int delay = 1000;
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                timersAdapter.refreshTimers();
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
     }
 
     @Override
@@ -145,10 +138,10 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
                 break;
             case R.id.action_play_tutorial:
                 sharedPreferences.edit()
-                        .remove(TutorialStep.POINT_TO_FAB.toString())
-                        .remove(TutorialStep.POINT_TO_TIMER.toString())
+                        .remove(MyTourGuide.TutorialStep.POINT_TO_FAB.toString())
+                        .remove(MyTourGuide.TutorialStep.POINT_TO_TIMER.toString())
                         .commit();
-                loadTutorial(TutorialStep.POINT_TO_FAB, fab);
+                tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_FAB, fab, tourGuideHandler, this);
                 break;
             default:
                 break;
@@ -179,51 +172,7 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
         }
     }
 
-    private void loadTutorial(TutorialStep step, View target) {
-        if (target != null) {
-            if (step.equals(TutorialStep.POINT_TO_FAB)) {
-                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.Click)
-                        .setPointer(new Pointer().setGravity(Gravity.TOP))
-                        .setToolTip(new ToolTip().setTitle(getString(R.string.welcome)).
-                                setDescription(getString(R.string.click_on_this_button)).setGravity(Gravity.TOP))
-                        .setOverlay(new Overlay().setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if (mTourGuideHandler != null) {
-                                    mTourGuideHandler.cleanUp();
-                                    sharedPreferences.edit()
-                                            .putBoolean(TutorialStep.POINT_TO_FAB.toString(), true)
-                                            .apply();
-                                }
-                            }
-                        }))
-                        .playOn(target);
-            } else if (step.equals(TutorialStep.POINT_TO_TIMER)) {
-                mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.VerticalDownward)
-                        .setToolTip(new ToolTip()
-                                .setDescription(getString(R.string.long_press_timer))
-                                .setGravity(Gravity.CENTER)
-                                .setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        if (mTourGuideHandler != null) {
-                                            mTourGuideHandler.cleanUp();
-                                        }
-                                        sharedPreferences.edit()
-                                                .putBoolean(TutorialStep.POINT_TO_TIMER.toString(), true)
-                                                .apply();
-                                    }
-                                })).setOverlay(new Overlay().setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if (mTourGuideHandler != null) {
-                                    mTourGuideHandler.cleanUp();
-                                }
-                            }
-                        }).setStyle(Overlay.Style.Rectangle)).playOn(target);
-            }
-        }
-    }
+
 
     private void initSwap() {
         final ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -236,45 +185,30 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
                 int position = viewHolder.getAdapterPosition();
                 if (i == ItemTouchHelper.LEFT) {
-                    if (mAdapter != null) {
-                        mAdapter.notifyItemRemoved(position);
+                    if (timersAdapter != null) {
+                        timersAdapter.notifyItemRemoved(position);
+                        timersAdapter.refreshTimers();
+                        Log.d(TAG, "notifyItemRemoved at position: " + position);
                     }
                 } else {
-                    if (mAdapter != null) {
-                        mAdapter.showUpdateTimerDialog(position);
+                    if (timersAdapter != null) {
+                        Log.d(TAG, "showUpdateTimerDialog");
+                        timersAdapter.showUpdateTimerDialog(position);
+                        timersAdapter.refreshTimers();
                     }
                 }
             }
 
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                Bitmap icon;
-
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                    View itemView = viewHolder.itemView;
-                    double height = itemView.getBottom() - itemView.getTop();
-                    double widht = height / 3.0;
-
-                    if (dX > 0) {
-                        Paint paint = new Paint();
-                        paint.setColor(Color.parseColor("388E3C"));
-                        RectF background = new RectF(itemView.getLeft(), itemView.getTop() + 20, dX - 100, itemView.getBottom() - 20);
-                        c.drawRect(background, paint);
-                        //                        val icong = BitmapFactory.decodeResource(resources, R.drawable.ic_action_name)
-//                        if (icong == null) {
-//                            Log.d(TAG, "icon is null")
-//                        }
-//                        val iconDest = RectF(itemView.left.toFloat() + width, itemView.top.toFloat() + width, itemView.left.toFloat() + 2 * width, itemView.bottom.toFloat() - width)
-//                        c?.drawBitmap(icong, null, iconDest, paint)
-                    }
-
-                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                }
+                Log.d(TAG, "horizontal displacement: " + dX);
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         };
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
 
@@ -283,18 +217,18 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
     public void onCreateTimer(String name, long time, DialogFragment dialog) {
 
         TimerDAO.create(DatabaseHelper.getInstance(this), name, time, false, true);
-        if (mAdapter != null) {
-            mAdapter.insertTimer();
+        if (timersAdapter != null) {
+            timersAdapter.insertTimer();
         }
 
         dialog.dismiss();
 
-        if (!sharedPreferences.contains(TutorialStep.POINT_TO_TIMER.toString())) {
+        if (!sharedPreferences.contains(MyTourGuide.TutorialStep.POINT_TO_TIMER.toString())) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (mRecyclerView != null) {
-                        loadTutorial(TutorialStep.POINT_TO_TIMER, mRecyclerView.getChildAt(0));
+                    if (recyclerView != null) {
+                        tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_TIMER, recyclerView.getChildAt(0), tourGuideHandler, MainActivity.this);
                     }
                 }
             }, 1000);
@@ -304,11 +238,11 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (mTourGuideHandler != null) {
-                    mTourGuideHandler.cleanUp();
+                if (tourGuideHandler != null) {
+                    tourGuideHandler.cleanUp();
                 }
             }
-        }, 1000);
+        }, 6000);
     }
 
     // TimerUpdateDialogListener implementation
@@ -316,8 +250,8 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
     public void onUpdate(String name, long defaultTime, int timerId, DialogFragment dialog) {
         dialog.dismiss();
         TimerDAO.updateTimer(DatabaseHelper.getInstance(this), timerId, name, defaultTime, defaultTime);
-        if (mAdapter != null) {
-            mAdapter.refreshTimers();
+        if (timersAdapter != null) {
+            timersAdapter.refreshTimers();
         }
     }
 
@@ -325,30 +259,18 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
     public void onResume() {
         super.onResume();
         setupColors();
-        if (mAdapter != null) {
-            mAdapter.setColors(colors);
+        if (timersAdapter != null) {
+            timersAdapter.setColors(colors);
         }
-        registerReceiver(receiver, new IntentFilter(BuildConfig.UPDATE_TIMERS));
         RingtonePlayer.stopPlaying();
         VibrationPlayer.stopVibrating();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        try {
-            unregisterReceiver(receiver);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "MainActivity IllegalArgumentException", e);
-        }
-    }
 
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
     }
 
-    private enum TutorialStep {
-        POINT_TO_FAB, POINT_TO_TIMER;
-    }
+
 }

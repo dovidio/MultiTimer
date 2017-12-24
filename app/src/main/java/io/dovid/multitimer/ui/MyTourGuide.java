@@ -22,8 +22,18 @@ public class MyTourGuide {
         POINT_TO_FAB, POINT_TO_TIMER;
     }
 
+    public static TourGuide loadTutorial(TutorialStep step, View target, TourGuide tourGuideHandler, Activity activity) {
+        if (target != null) {
+            if (step.equals(TutorialStep.POINT_TO_FAB)) {
+                tourGuideHandler = loadFirstStep(target, activity, tourGuideHandler);
+            } else if (step.equals(TutorialStep.POINT_TO_TIMER)) {
+                tourGuideHandler = loadSecondStep(target, activity, tourGuideHandler);
+            }
+        }
+        return tourGuideHandler;
+    }
 
-    public static TourGuide loadFirstStep(View target, Activity activity, final TourGuide tourGuide) {
+    private static TourGuide loadFirstStep(View target, Activity activity, final TourGuide tourGuide) {
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
         return TourGuide.init(activity).with(TourGuide.Technique.Click)
                 .setPointer(new Pointer().setGravity(Gravity.TOP))
@@ -43,7 +53,29 @@ public class MyTourGuide {
                 .playOn(target);
     }
 
-    public static TourGuide getSecondStep(View target) {
-        return null;
+    private static TourGuide loadSecondStep(View target, Activity activity, final TourGuide tourGuide) {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        return TourGuide.init(activity).with(TourGuide.Technique.VerticalDownward)
+                .setToolTip(new ToolTip()
+                        .setDescription(activity.getString(R.string.long_press_timer))
+                        .setGravity(Gravity.CENTER)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (tourGuide != null) {
+                                    tourGuide.cleanUp();
+                                }
+                                sharedPreferences.edit()
+                                        .putBoolean(TutorialStep.POINT_TO_TIMER.toString(), true)
+                                        .apply();
+                            }
+                        })).setOverlay(new Overlay().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (tourGuide != null) {
+                            tourGuide.cleanUp();
+                        }
+                    }
+                }).setStyle(Overlay.Style.Rectangle)).playOn(target);
     }
 }
