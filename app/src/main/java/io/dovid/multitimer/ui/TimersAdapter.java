@@ -21,8 +21,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.R;
@@ -45,13 +47,13 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
     private ArrayList<TimerEntity> timers;
     private Context context;
-    private DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
+    private DatabaseHelper databaseHelper;
     private int[] colors;
     private static final String TAG = "CUSTOMADAPTER";
 
-
-    public TimersAdapter(Context context) {
+    TimersAdapter(@NotNull Context context) {
         this.context = context;
+        databaseHelper = DatabaseHelper.getInstance(context);
         timers = TimerDAO.getTimers(databaseHelper);
         TimerRunner.getInstance().run(context);
     }
@@ -62,8 +64,10 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
     }
 
     void refreshTimers() {
-        timers = TimerDAO.getTimers(databaseHelper);
-        notifyDataSetChanged();
+        ArrayList<TimerEntity> timerFromDb = TimerDAO.getTimers(databaseHelper);
+        if (Arrays.equals(timers.toArray(), timerFromDb.toArray())) {
+            notifyDataSetChanged();
+        }
     }
 
     void insertTimer() {
@@ -74,6 +78,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
     private void deleteTimer(int position) {
         TimerDAO.deleteTimer(databaseHelper, timers.get(position).getId());
         notifyItemRemoved(position);
+        refreshTimers();
     }
 
     void showUpdateTimerDialog(int position) {
@@ -99,9 +104,11 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
         return timers.size();
     }
 
-    public class TimerViewHolder extends RecyclerView.ViewHolder {
+    class TimerViewHolder extends RecyclerView.ViewHolder {
 
-        public TimerViewHolder(View itemView) {
+        private static final int ANIMATION_DURATION = 500;
+
+        TimerViewHolder(View itemView) {
             super(itemView);
         }
 
@@ -113,7 +120,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
                     setupPauseView(position);
                 }
             } else {
-                Log.d(TAG, "not binding");
+                Log.d(TAG, "not binding since timer is animating");
             }
         }
 
@@ -159,6 +166,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d(TAG, "pressed play button");
                     playAnimation(timer, true);
                     TimerDAO.updateTimerPlayTimestamp(databaseHelper, timer.getId(), System.currentTimeMillis());
                     TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), true);
@@ -287,16 +295,20 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
             AnimatorSet allAnimatorSet = new AnimatorSet();
             allAnimatorSet.playTogether(animatorSetCardOut, animatorSetCardIn);
-            allAnimatorSet.setDuration(500);
+            allAnimatorSet.setDuration(ANIMATION_DURATION);
 
             allAnimatorSet.addListener(new MyAnimationListenerAdapter(new onAnimationStopDoneListener() {
                 @Override
                 public void onAnimationStopDone() {
                     Log.d(TAG, "stopping animation");
+                    timer.setAnimating(false);
                     TimerDAO.updateIsAnimating(databaseHelper, timer.getId(), false);
                     refreshTimers();
                 }
             }));
+
+            allAnimatorSet.start();
+
         }
     }
 
