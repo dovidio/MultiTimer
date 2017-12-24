@@ -9,9 +9,7 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -83,7 +81,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
         notifyItemInserted(timers.size());
     }
 
-    private void deleteTimer(int position) {
+    void deleteTimer(int position) {
         TimerDAO.deleteTimer(databaseHelper, timers.get(position).getId());
         timers.remove(position);
         notifyItemRemoved(position);
@@ -146,28 +144,6 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
             timerNameTV.setText(timer.getName());
             timerNameTV.setBackgroundColor(ContextCompat.getColor(context, colors[timer.getId() % colors.length]));
-
-            itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    contextMenu.setHeaderTitle(R.string.what_to_do);
-                    contextMenu.add(0, view.getId(), 0, R.string.delete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            deleteTimer(position);
-                            return true;
-                        }
-                    });
-
-                    contextMenu.add(0, view.getId(), 0, R.string.update).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            showUpdateTimerDialog(position);
-                            return true;
-                        }
-                    });
-                }
-            });
 
             defaultTimeTV.setText(DurationFormatUtils.formatDuration(timer.getDefaultTime(), BuildConfig.ITALIANTIME));
             ImageButton playButton = itemView.findViewById(R.id.buttonPlay);
