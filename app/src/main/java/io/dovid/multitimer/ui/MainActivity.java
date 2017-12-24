@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -159,47 +158,46 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
         }
     }
 
-
-
     private void initSwap() {
-        final ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        final ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new SwipeCallback(this) {
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder viewHolder1) {
-                return false;
+            void swipeLeft(final int position) {
+                timersAdapter.notifyDataSetChanged();
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("Are you sure you want this timer?")
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                timersAdapter.deleteTimer(position);
+                                timersAdapter.notifyItemRemoved(position);
+                                timersAdapter.refreshTimers();
+                                Log.d(TAG, "notifyItemRemoved at position: " + position);
+                                dialogInterface.dismiss();
+                            }
+                        }).show();
+
             }
 
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
-                int position = viewHolder.getAdapterPosition();
-                if (i == ItemTouchHelper.LEFT) {
-                    if (timersAdapter != null) {
-                        timersAdapter.deleteTimer(position);
-                        timersAdapter.notifyItemRemoved(position);
-                        timersAdapter.refreshTimers();
-                        Log.d(TAG, "notifyItemRemoved at position: " + position);
-                    }
-                } else {
-                    if (timersAdapter != null) {
-                        Log.d(TAG, "showUpdateTimerDialog");
-                        timersAdapter.showUpdateTimerDialog(position);
-                        timersAdapter.refreshTimers();
-                    }
+            void swipeRight(int position) {
+                if (timersAdapter != null) {
+                    Log.d(TAG, "showUpdateTimerDialog");
+                    timersAdapter.showUpdateTimerDialog(position);
+                    timersAdapter.refreshTimers();
+                    timersAdapter.notifyDataSetChanged();
                 }
             }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                Log.d(TAG, "horizontal displacement: " + dX);
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
         };
-
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
-
-
 
     // TimerCreateDialogListener implementation
     public void onCreateTimer(String name, long time, DialogFragment dialog) {
@@ -233,11 +231,8 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
         VibrationPlayer.stopVibrating();
     }
 
-
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
     }
-
-
 }
