@@ -27,20 +27,18 @@ import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.R;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
+import io.dovid.multitimer.model.TimerEntity;
 import io.dovid.multitimer.ui.preferences.PreferenceActivity;
 import io.dovid.multitimer.utilities.AppRater;
 import io.dovid.multitimer.utilities.RingtonePlayer;
 import io.dovid.multitimer.utilities.VibrationPlayer;
-import tourguide.tourguide.TourGuide;
 
 public class MainActivity extends AppCompatActivity implements CreateTimerDialog.TimerCreateDialogListener, TimerUpdateDialog.TimerUpdateDialogListener {
 
     private RecyclerView recyclerView;
     private TimersAdapter timersAdapter;
     private FloatingActionButton fab;
-    private TourGuide tourGuideHandler;
     private int[] colors;
-    private SharedPreferences sharedPreferences;
 
     private static final String TAG = "MAINACTIVITY";
     private static final int MATERIAL_THEME = 0;
@@ -54,8 +52,6 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // setup recycler view holding timers
         recyclerView = findViewById(R.id.recyclerView);
@@ -74,20 +70,12 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
         AppRater.app_launched(this);
         initSwap();
 
-        if (!sharedPreferences.contains(MyTourGuide.TutorialStep.POINT_TO_FAB.toString())) {
-            tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_FAB, fab, tourGuideHandler, this);
-        }
-
         fab = findViewById(R.id.fab);
 
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (tourGuideHandler != null) {
-                        tourGuideHandler.cleanUp();
-                    }
-
                     if (timersAdapter != null && timersAdapter.getItemCount() < BuildConfig.MAX_TIMERS) {
                         CreateTimerDialog createDialog = CreateTimerDialog.getInstance();
                         createDialog.show(getFragmentManager(), "createTimer");
@@ -141,11 +129,6 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
                 AboutDialog.getInstance().show(getFragmentManager(), "AboutDialog");
                 break;
             case R.id.action_play_tutorial:
-                sharedPreferences.edit()
-                        .remove(MyTourGuide.TutorialStep.POINT_TO_FAB.toString())
-                        .remove(MyTourGuide.TutorialStep.POINT_TO_TIMER.toString())
-                        .commit();
-                tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_FAB, fab, tourGuideHandler, this);
                 break;
             default:
                 break;
@@ -190,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
                 int position = viewHolder.getAdapterPosition();
                 if (i == ItemTouchHelper.LEFT) {
                     if (timersAdapter != null) {
+                        timersAdapter.deleteTimer(position);
                         timersAdapter.notifyItemRemoved(position);
                         timersAdapter.refreshTimers();
                         Log.d(TAG, "notifyItemRemoved at position: " + position);
@@ -222,31 +206,10 @@ public class MainActivity extends AppCompatActivity implements CreateTimerDialog
 
         TimerDAO.create(DatabaseHelper.getInstance(this), name, time, false, true);
         if (timersAdapter != null) {
-            timersAdapter.insertTimer();
+            timersAdapter.insertTimer(new TimerEntity(20, name, time, time, false, true));
         }
 
         dialog.dismiss();
-
-        if (!sharedPreferences.contains(MyTourGuide.TutorialStep.POINT_TO_TIMER.toString())) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (recyclerView != null) {
-                        tourGuideHandler = MyTourGuide.loadTutorial(MyTourGuide.TutorialStep.POINT_TO_TIMER, recyclerView.getChildAt(0), tourGuideHandler, MainActivity.this);
-                    }
-                }
-            }, 1000);
-        }
-
-        // in case user does not find easy to clear tutorial
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (tourGuideHandler != null) {
-                    tourGuideHandler.cleanUp();
-                }
-            }
-        }, 6000);
     }
 
     // TimerUpdateDialogListener implementation
