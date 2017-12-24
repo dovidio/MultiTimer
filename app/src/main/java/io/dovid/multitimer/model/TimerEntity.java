@@ -1,5 +1,7 @@
 package io.dovid.multitimer.model;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Author: Umberto D'Ovidio
  * Date: 19/08/17
@@ -24,7 +26,7 @@ public class TimerEntity {
     }
 
 
-    public TimerEntity(int id, String name, long countdownTime, long countdownTimeRunning, boolean currentlyRunning, boolean shouldNotify) {
+    public TimerEntity(int id, @NotNull String name, long countdownTime, long countdownTimeRunning, boolean currentlyRunning, boolean shouldNotify) {
         this.id = id;
         this.name = name;
         this.defaultTime = countdownTime;
