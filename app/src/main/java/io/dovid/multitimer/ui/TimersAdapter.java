@@ -65,18 +65,20 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
     void refreshTimers() {
         ArrayList<TimerEntity> timerFromDb = TimerDAO.getTimers(databaseHelper);
-        Integer[] indexesOfChangedElements = MyCollectionUtils.indexesOfChangedElements(timers, timerFromDb);
-        for (Integer index : indexesOfChangedElements) {
-            Log.d(TAG, "notifying");
-            notifyItemChanged(index);
-        }
+        if (timers.size() == timerFromDb.size()) {
+            Integer[] indexesOfChangedElements = MyCollectionUtils.indexesOfChangedElements(timers, timerFromDb);
+            for (Integer index : indexesOfChangedElements) {
+                Log.d(TAG, "notifying");
+                notifyItemChanged(index);
+            }
 
-        if (indexesOfChangedElements.length > 0) {
-            timers = timerFromDb;
+            if (indexesOfChangedElements.length > 0) {
+                timers = timerFromDb;
+            }
         }
     }
 
-    void insertTimer() {
+    void insertTimer(TimerEntity timerEntity) {
         timers = TimerDAO.getTimers(databaseHelper);
         notifyItemInserted(timers.size());
     }
@@ -120,8 +122,6 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
         void bind(int position) {
             if (!timers.get(position).isAnimating()) {
-
-                Log.d(TAG, "timer is running: " + timers.get(position).isRunning());
                 if (timers.get(position).isRunning() || timers.get(position).getDefaultTime() != timers.get(position).getExpiredTime()) {
                     Log.d(TAG, "setupPlayView");
                     setupPlayView(position);
@@ -172,7 +172,6 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
             defaultTimeTV.setText(DurationFormatUtils.formatDuration(timer.getDefaultTime(), BuildConfig.ITALIANTIME));
             ImageButton playButton = itemView.findViewById(R.id.buttonPlay);
 
-
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -197,7 +196,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
 
         }
 
-        private void setupPlayView(int position) {
+        private void setupPlayView(final int position) {
 
             final TimerEntity timer = timers.get(position);
 
@@ -225,7 +224,7 @@ public class TimersAdapter extends RecyclerView.Adapter<TimersAdapter.TimerViewH
             resetButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    playAnimation(timer, true);
+                    playAnimation(timer, false);
                     TimerDAO.updateTimerRunning(databaseHelper, timer.getId(), false);
                     TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId(), timer.getDefaultTime());
                     TimerDAO.putPlayTimeStampNull(databaseHelper, timer.getId());
