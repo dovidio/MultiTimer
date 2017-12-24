@@ -20,6 +20,7 @@ public class TimerEntity {
 
 
     public TimerEntity() {
+        this.name = "";
     }
 
 
@@ -87,6 +88,24 @@ public class TimerEntity {
 
     public void setShouldNotify(boolean shouldNotify) {
         this.shouldNotify = shouldNotify;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof TimerEntity)) {
+            return false;
+        }
+        TimerEntity other = (TimerEntity) obj;
+
+        return this.id == other.id &&
+                this.name.equals(other.name) &&
+                this.defaultTime == other.defaultTime &&
+                this.expiredTime == other.expiredTime &&
+                this.isRunning == other.isRunning &&
+                this.isAnimating == other.isAnimating &&
+                this.shouldNotify == other.shouldNotify;
     }
 
     public String toString() {
