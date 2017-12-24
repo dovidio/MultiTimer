@@ -1,13 +1,11 @@
 package io.dovid.multitimer.utilities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import io.dovid.multitimer.BuildConfig;
 import io.dovid.multitimer.database.DatabaseHelper;
 import io.dovid.multitimer.model.TimerDAO;
 import io.dovid.multitimer.model.TimerEntity;
@@ -50,8 +48,6 @@ public class TimerRunner {
                             TimerDAO.updateTimerExpiredTime(databaseHelper, timer.getId());
                         }
                     }
-                    Intent i = new Intent(BuildConfig.UPDATE_TIMERS);
-                    context.sendBroadcast(i);
                     handler.postDelayed(this, 1000);
                 }
             }, 1000);
