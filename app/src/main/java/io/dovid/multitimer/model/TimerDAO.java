@@ -121,7 +121,7 @@ public class TimerDAO {
             long playStartedAt = cursor.getLong(cursor.getColumnIndexOrThrow(PlAY_STARTED_AT));
             long defaultTime = cursor.getLong(cursor.getColumnIndexOrThrow(DEFAULT_TIME));
 
-            long updatedExpiredTime = defaultTime - ((new java.util.Date()).getTime() - playStartedAt);
+            long updatedExpiredTime = defaultTime - (System.currentTimeMillis() - playStartedAt);
 
 
             ContentValues cv = new ContentValues();
